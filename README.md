@@ -11,9 +11,9 @@
 ## 👥 The Team
 | Role | Name | GitHub Username | Primary Responsibility |
 | :--- | :--- | :--- | :--- |
-| **Team Lead** | Pratyaksha | [@pratyaksh308] | Architecture & Merge Approvals |
+| **Team Lead** | Pratyaksha | @pratyaksh308 | Architecture & Merge Approvals |
 | **Developer** | [Name] | [@user] | Backend / API |
-| **Developer** | [Name] | [@user] | Frontend / UI |
+| **Developer** | Aayushman | @ayushmanrwt | Frontend / UI |
 | **Developer** | [Name] | [@user] | Database & Testing |
 | **DevOps** | [Name] | [@user] | CI/CD & Documentation |
 
