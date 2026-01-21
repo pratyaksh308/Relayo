@@ -14,7 +14,7 @@
 | **Team Lead** | Pratyaksha | @pratyaksh308 | Architecture & Merge Approvals |
 | **Developer** | [Name] | [@user] | Backend / API |
 | **Developer** | Aayushman | @ayushmanrwt | Frontend / UI |
-| **Developer** | [Name] | [@user] | Database & Testing |
+| **Developer** | Dron  | @dodo20-alt | Database & Testing |
 | **DevOps** | [Name] | [@user] | CI/CD & Documentation |
 
 ---
