@@ -12,7 +12,7 @@
 | Role | Name | GitHub Username | Primary Responsibility |
 | :--- | :--- | :--- | :--- |
 | **Team Lead** | Pratyaksha | @pratyaksh308 | Architecture & Merge Approvals |
-| **Developer** | Jayant | [@user] | Backend / API |
+| **Developer** | Jayant | @ijayant91-netizen | Backend / API |
 | **Developer** | Aayushman | @ayushmanrwt | Frontend / UI |
 | **Developer** | Dron  | @dodo20-alt | Database & Testing |
 | **DevOps** | Om Nawani | @omnawan | CI/CD & Documentation |
