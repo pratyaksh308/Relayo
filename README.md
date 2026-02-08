@@ -75,3 +75,5 @@ Grading is based on **Digital Footprint** in this repository.
 2.  Run `[command to install dependencies]` (e.g., `npm install` or `mvn clean install`).
 3.  Configure `.env` file (see `.env.example`).
 4.  Run the application: `[command to run app]`.
+
+Initial project setup started by Team Lead.
