@@ -1,1 +1,13 @@
-USE THIS TO STORE YOUR BACKEND LOGIC
+Backend module for SwiftChat Pro.
+
+This folder will contain:
+- Server-side source code
+- APIs
+- Real-time communication logic
+- Authentication logic
+- Business logic
+
+Proposed Technologies:
+Node.js
+Express.js
+Socket.IO

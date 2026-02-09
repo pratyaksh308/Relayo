@@ -1,1 +1,10 @@
-USE THIS TO STORE YOUR DATABASE RELATED FILES AND DIAGRAMS
+Database module for SwiftChat Pro.
+
+This folder will contain:
+- Database schemas
+- Collection structures
+- Sample data
+- ER diagrams
+
+Proposed Database:
+MongoDB

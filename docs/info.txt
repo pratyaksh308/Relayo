@@ -1,1 +1,7 @@
-USE THIS TO KEEP ALL YOUR PROJECT RELATED DOCUMENTATION INCLUDING THE FINAL PROJECT 
+Documentation module for SwiftChat Pro.
+
+This folder will contain:
+- Software Requirement Specification (SRS)
+- Design Diagrams
+- Meeting Notes
+- Final Project Report
