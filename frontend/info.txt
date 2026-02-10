@@ -1,1 +1,13 @@
-USE THIS TO STORE YOUR FRONTEND CODE
+Frontend module for SwiftChat Pro.
+
+This folder will contain:
+- Web UI source code
+- Pages and components
+- Styling files
+- API integration code
+
+Proposed Technologies:
+React.js
+HTML
+CSS
+JavaScript

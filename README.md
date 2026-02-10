@@ -11,10 +11,10 @@
 ## 👥 The Team
 | Role | Name | GitHub Username | Primary Responsibility |
 | :--- | :--- | :--- | :--- |
-| **Team Lead** | Pratyaksha | @pratyaksh308 | Architecture & Merge Approvals |
-| **Developer** | Jayant | @ijayant91-netizen | Backend / API |
-| **Developer** | Aayushman | @ayushmanrwt | Frontend / UI |
-| **Developer** | Dron  | @dodo20-alt | Database & Testing |
+| **Team Lead** | Pratyaksha Kumar jha | @pratyaksh308 | Architecture & Merge Approvals |
+| **Developer** | Jayant Tomar | @ijayant91-netizen | Backend / API |
+| **Developer** | Aayushman Rawat | @ayushmanrwt | Frontend / UI |
+| **Developer** | Dron Makkar  | @dodo20-alt | Database & Testing |
 | **DevOps** | Om Nawani | @omnawan | CI/CD & Documentation |
 
 ---
@@ -75,3 +75,5 @@ Grading is based on **Digital Footprint** in this repository.
 2.  Run `[command to install dependencies]` (e.g., `npm install` or `mvn clean install`).
 3.  Configure `.env` file (see `.env.example`).
 4.  Run the application: `[command to run app]`.
+
+Initial project setup started by Team Lead.
