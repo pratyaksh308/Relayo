@@ -1,5 +1,6 @@
-# Project Name: [Insert Project Name Here]
-### Team ID: [e.g., Group-05]
+[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=22275475&assignment_repo_type=AssignmentRepo)
+# Project Name: SwiftChat
+### Team ID: Group 11
 
 ## 🏢 Corporate Simulation Guidelines
 **Approved by:** Prof. Anushrav Mudgal
@@ -10,11 +11,11 @@
 ## 👥 The Team
 | Role | Name | GitHub Username | Primary Responsibility |
 | :--- | :--- | :--- | :--- |
-| **Team Lead** | [Name] | [@user] | Architecture & Merge Approvals |
-| **Developer** | [Name] | [@user] | Backend / API |
-| **Developer** | [Name] | [@user] | Frontend / UI |
-| **Developer** | [Name] | [@user] | Database & Testing |
-| **DevOps** | [Name] | [@user] | CI/CD & Documentation |
+| **Team Lead** | Pratyaksha Kumar jha | @pratyaksh308 | Architecture & Merge Approvals |
+| **Developer** | Jayant Tomar | @ijayant91-netizen | Backend / API |
+| **Developer** | Aayushman Rawat | @ayushmanrwt | Frontend / UI |
+| **Developer** | Dron Makkar  | @dodo20-alt | Database & Testing |
+| **DevOps** | Om Nawani | @omnawan | CI/CD & Documentation |
 
 ---
 
@@ -74,3 +75,5 @@ Grading is based on **Digital Footprint** in this repository.
 2.  Run `[command to install dependencies]` (e.g., `npm install` or `mvn clean install`).
 3.  Configure `.env` file (see `.env.example`).
 4.  Run the application: `[command to run app]`.
+
+Initial project setup started by Team Lead.
