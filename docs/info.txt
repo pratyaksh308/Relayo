@@ -5,3 +5,4 @@ This folder will contain:
 - Design Diagrams
 - Meeting Notes
 - Final Project Report
+- Design 
