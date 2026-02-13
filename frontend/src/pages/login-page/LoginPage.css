@@ -1,0 +1,326 @@
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  background: #050b1a;
+}
+
+/* ============================================
+   USER SELECTION CONTROL
+   ============================================ */
+.relayo-logo,
+.relayo-title,
+.relayo-subtitle,
+.relayo-label,
+.relayo-alert-success,
+.relayo-alert-error,
+.remember-row span,
+.signup-text,
+.eye-icon,
+.relayo-button {
+  user-select: none;
+}
+
+/* ============================================
+   ROOT & BACKGROUND
+   ============================================ */
+.relayo-root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top left, #1e293b 0, transparent 45%),
+    linear-gradient(135deg, #050b1a 0%, #0b132b 100%);
+  color: #e5e7eb;
+  font-family: system-ui, sans-serif;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+.fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-animate {
+  animation: successSlide 0.35s ease-out;
+}
+
+@keyframes successSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.01);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   CARD LAYOUT
+   ============================================ */
+.relayo-card {
+  width: 100%;
+  max-width: 500px;
+  background: #0f172a;
+  padding: 2.5rem;
+  border-radius: 18px;
+}
+
+/* ============================================
+   LOGO
+   ============================================ */
+.logo-wrap {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgb(255, 255, 255);
+  border: 3px solid rgba(255, 140, 0, 0.6);
+  backdrop-filter: blur(6px);
+  user-select: none;
+}
+
+.relayo-logo {
+  width: 46px;
+  height: auto;
+  filter: none;
+  transition: transform 0.2s ease;
+}
+
+.relayo-logo:hover {
+  transform: scale(1.05);
+}
+
+/* ============================================
+   SUBTITLE
+   ============================================ */
+.subtitle-centre {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.relayo-subtitle {
+  color: #9ca3af;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+/* ============================================
+   FORM & INPUTS
+   ============================================ */
+.relayo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.relayo-label {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.relayo-input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: white;
+  outline: none;
+  box-sizing: border-box;
+  caret-color: white;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.relayo-input:not(:focus) {
+  caret-color: transparent;
+}
+
+.relayo-input:focus {
+  border-color: #ff8c00;
+  box-shadow: 0 0 0 1px rgba(255, 140, 0, 0.5);
+}
+
+/* ============================================
+   PASSWORD FIELD
+   ============================================ */
+.password-box {
+  position: relative;
+}
+
+.password-box .relayo-input {
+  transition: none;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ff8c00;
+  font-size: 0.75rem;
+  cursor: pointer;
+  caret-color: transparent;
+}
+
+/* ============================================
+   REMEMBER ME
+   ============================================ */
+.remember-row {
+  display: flex;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.remember-row input,
+.remember-row span {
+  cursor: pointer;
+}
+
+/* ============================================
+   BUTTON
+   ============================================ */
+.relayo-button {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #ff8c00, #ffb347);
+  font-weight: 600;
+  cursor: pointer;
+  caret-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.relayo-button:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 18px rgba(255, 140, 0, 0.6);
+}
+
+.relayo-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-success {
+  box-shadow: 0 0 22px rgba(34, 197, 94, 0.8);
+  background: linear-gradient(135deg, #22c55e, #4ade80);
+  color: #022c22;
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+.alert-space {
+  min-height: 0;
+  transition: min-height 0.25s ease;
+}
+
+.relayo-alert {
+  padding: 0.6rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.relayo-alert-error {
+  background: rgba(127, 29, 29, 0.3);
+  color: #fecaca;
+}
+
+.relayo-alert-success {
+  background: rgba(22, 101, 52, 0.3);
+  color: #bbf7d0;
+}
+
+/* ============================================
+   FORGOT PASSWORD LINK
+   ============================================ */
+.forgot-row {
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+.forgot-link {
+  color: #ff8c00;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   SIGNUP LINK
+   ============================================ */
+.signup-row {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.signup-link {
+  color: #ff8c00;
+  margin-left: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 6px rgba(255, 140, 0, 0.6);
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(0, 0, 0, 0.15);
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
