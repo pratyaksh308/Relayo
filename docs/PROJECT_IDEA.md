@@ -1,13 +1,13 @@
-# Project Idea: SwiftChat Pro
+# Project Idea: Relayo
 
 ## 1. Project Title
-SwiftChat Pro – Hybrid Real-Time Chat Application (Online + LAN)
+Relayo – Hybrid Real-Time Chat Application (Online + LAN)
 
 ## 2. Problem Statement
 Most chat applications depend completely on the internet. During situations such as network outages, campus LAN usage, private office networks, or local community communication, users are unable to communicate without internet connectivity. There is a need for a communication system that can operate both online and within a local network.
 
 ## 3. Proposed Solution
-SwiftChat Pro is a hybrid real-time chat system that works in two modes:
+Relayo is a hybrid real-time chat system that works in two modes:
 
 1. Online Mode – Users communicate through a central server over the internet.
 2. LAN Mode – Users connected to the same local network can chat without internet access using a locally hosted server.
@@ -52,4 +52,4 @@ The application automatically switches between modes depending on network availa
 - VS Code
 
 ## 7. Conclusion
-SwiftChat Pro aims to provide a reliable and flexible communication platform that supports both internet-based and local network communication, making it suitable for a wide range of real-world use cases.
+Relayo aims to provide a reliable and flexible communication platform that supports both internet-based and local network communication, making it suitable for a wide range of real-world use cases.

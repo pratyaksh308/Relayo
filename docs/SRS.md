@@ -1,11 +1,11 @@
 # Software Requirements Specification (SRS)
-## SwiftChat Pro – Hybrid Full-Stack Real-Time Chat Application
+## Relayo – Hybrid Full-Stack Real-Time Chat Application
 
 ---
 
 ## 1. Introduction
 
-SwiftChat Pro is a hybrid real-time communication platform designed to support both **online (internet-based)** and **offline (LAN-based)** messaging. The system allows users connected through the same local network or through the internet to exchange messages instantly using web and future mobile clients.
+Relayo is a hybrid real-time communication platform designed to support both **online (internet-based)** and **offline (LAN-based)** messaging. The system allows users connected through the same local network or through the internet to exchange messages instantly using web and future mobile clients.
 
 The application demonstrates full-stack development concepts, real-time communication, and client-server architecture.
 
@@ -13,13 +13,13 @@ The application demonstrates full-stack development concepts, real-time communic
 
 ## 2. Purpose
 
-The purpose of this document is to define the functional and non-functional requirements of SwiftChat Pro. This document serves as a reference for developers, testers, and evaluators to understand the system behavior, scope, and limitations.
+The purpose of this document is to define the functional and non-functional requirements of Relayo. This document serves as a reference for developers, testers, and evaluators to understand the system behavior, scope, and limitations.
 
 ---
 
 ## 3. Scope
 
-SwiftChat Pro provides the following features:
+Relayo provides the following features:
 
 - Real-time text messaging
 - Hybrid communication (Online + LAN mode)
@@ -33,7 +33,7 @@ The project is developed for academic purposes and can be extended into a produc
 
 ## 4. System Overview
 
-SwiftChat Pro follows a **client-server architecture**. Frontend clients communicate with backend servers using REST APIs and WebSockets.
+Relayo follows a **client-server architecture**. Frontend clients communicate with backend servers using REST APIs and WebSockets.
 
 Two deployment modes are supported:
 
@@ -44,7 +44,7 @@ MongoDB is used for data storage.
 
 ### System Architecture Diagram
 
-![System Architecture of SwiftChat Pro](./images/architecture.png)
+![System Architecture of Relayo](./images/architecture.png)
 
 ---
 

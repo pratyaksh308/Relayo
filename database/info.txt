@@ -1,4 +1,4 @@
-Database module for SwiftChat Pro.
+Database module for Relayo.
 
 This folder will contain:
 - Database schemas
