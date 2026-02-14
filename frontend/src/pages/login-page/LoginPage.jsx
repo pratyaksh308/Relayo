@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import relayoIcon from '../../assets/images/relayo-r.png';
 import './LoginPage.css';
 
@@ -9,7 +10,13 @@ const LOADING_DELAY = 1500;
 const SUCCESS_DISPLAY_DURATION = 3000;
 const BUTTON_SUCCESS_DURATION = 3000;
 
-const LoginPage = ({ onForgotPassword = () => {} }) => {
+const LoginPage = ({ onForgotPassword }) => {
+  const navigate = useNavigate();
+  const handleForgotPassword = useCallback(() => {
+    if (onForgotPassword) onForgotPassword();
+    else navigate('/forgot-password');
+  }, [onForgotPassword, navigate]);
+
   // State management
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -187,11 +194,11 @@ const LoginPage = ({ onForgotPassword = () => {} }) => {
             {/* Forgot Password Link */}
             <div className="forgot-row">
               <a
-                href="#"
+                href="/forgot-password"
                 className="forgot-link"
                 onClick={(e) => {
                   e.preventDefault();
-                  onForgotPassword();
+                  handleForgotPassword();
                 }}
               >
                 Forgot password?
@@ -221,7 +228,7 @@ const LoginPage = ({ onForgotPassword = () => {} }) => {
             <div className="signup-row">
               <span className="signup-text">
                 Don't have an account?{' '}
-                <a href="#" className="signup-link" onClick={(e) => e.preventDefault()}>
+                <a href="/register" className="signup-link" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>
                   Sign up
                 </a>
               </span>

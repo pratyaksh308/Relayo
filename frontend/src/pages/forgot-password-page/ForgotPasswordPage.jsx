@@ -1,10 +1,17 @@
 import { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import relayoIcon from '../../assets/images/relayo-r.png';
 import '../login-page/LoginPage.css';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const ForgotPasswordPage = ({ onBackToLogin = () => {} }) => {
+const ForgotPasswordPage = ({ onBackToLogin }) => {
+  const navigate = useNavigate();
+  const handleBackToLogin = useCallback(() => {
+    if (onBackToLogin) onBackToLogin();
+    else navigate('/login');
+  }, [onBackToLogin, navigate]);
+
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -71,11 +78,11 @@ const ForgotPasswordPage = ({ onBackToLogin = () => {} }) => {
 
             <div className="auth-link-row">
               <a
-                href="#"
+                href="/login"
                 className="auth-link"
                 onClick={(event) => {
                   event.preventDefault();
-                  onBackToLogin();
+                  handleBackToLogin();
                 }}
               >
                 Back to login
