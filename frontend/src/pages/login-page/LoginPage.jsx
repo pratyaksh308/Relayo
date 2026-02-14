@@ -9,7 +9,7 @@ const LOADING_DELAY = 1500;
 const SUCCESS_DISPLAY_DURATION = 3000;
 const BUTTON_SUCCESS_DURATION = 3000;
 
-const Login = () => {
+const LoginPage = ({ onForgotPassword = () => {} }) => {
   // State management
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -186,7 +186,14 @@ const Login = () => {
 
             {/* Forgot Password Link */}
             <div className="forgot-row">
-              <a href="#" className="forgot-link" onClick={(e) => e.preventDefault()}>
+              <a
+                href="#"
+                className="forgot-link"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onForgotPassword();
+                }}
+              >
                 Forgot password?
               </a>
             </div>
@@ -226,4 +233,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;
