@@ -290,6 +290,24 @@ html, body {
 }
 
 /* ============================================
+   AUTH LINKS
+   ============================================ */
+.auth-link-row {
+  margin-top: 0.8rem;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.auth-link {
+  color: #ff8c00;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
    SIGNUP LINK
    ============================================ */
 .signup-row {
