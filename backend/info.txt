@@ -1,4 +1,4 @@
-Backend module for SwiftChat Pro.
+Backend module for Relayo.
 
 This folder will contain:
 - Server-side source code

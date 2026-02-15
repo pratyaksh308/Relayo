@@ -1,11 +1,13 @@
 import { useCallback, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import relayoIcon from '../../assets/images/relayo-r.png';
 import '../login-page/LoginPage.css';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 6;
 
-const RegisterPage = ({ onBackToLogin = () => {} }) => {
+const RegisterPage = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -183,11 +185,11 @@ const RegisterPage = ({ onBackToLogin = () => {} }) => {
 
             <div className="auth-link-row">
               <a
-                href="#"
+                href="/login"
                 className="auth-link"
                 onClick={(event) => {
                   event.preventDefault();
-                  onBackToLogin();
+                  navigate('/login');
                 }}
               >
                 Back to login

@@ -1,8 +1,7 @@
-Documentation module for SwiftChat Pro.
+Documentation module for Relayo.
 
 This folder will contain:
 - Software Requirement Specification (SRS)
 - Design Diagrams
 - Meeting Notes
-- Final Project Report
-- Design 
+- Final Project Report 

@@ -1,24 +1,29 @@
-import { useState } from 'react';
-import LoginPage from './pages/login-page/LoginPage';
-import ForgotPasswordPage from './pages/forgot-password-page/ForgotPasswordPage';
-import RegisterPage from './pages/register-page/RegisterPage';
+import { Routes, Route, Navigate } from "react-router-dom";
+
+import LoginPage from "./pages/login-page/LoginPage";
+import RegisterPage from "./pages/register-page/RegisterPage";
+import ForgotPasswordPage from "./pages/forgot-password-page/ForgotPasswordPage";
+import HomePage from "./pages/HomePage.jsx";
+import ChatPage from "./pages/ChatPage.jsx";
 
 function App() {
-  const [page, setPage] = useState('login');
-
-  if (page === 'forgot-password') {
-    return <ForgotPasswordPage onBackToLogin={() => setPage('login')} />;
-  }
-
-  if (page === 'register') {
-    return <RegisterPage onBackToLogin={() => setPage('login')} />;
-  }
-
   return (
-    <LoginPage
-      onForgotPassword={() => setPage('forgot-password')}
-      onSignUp={() => setPage('register')}
-    />
+    <Routes>
+      {/* Redirect root to login */}
+      <Route path="/" element={<Navigate to="/login" />} />
+
+      {/* Auth Pages */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+      {/* App Pages */}
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/chat" element={<ChatPage />} />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/login" />} />
+    </Routes>
   );
 }
 
