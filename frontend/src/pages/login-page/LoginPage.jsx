@@ -9,7 +9,7 @@ const LOADING_DELAY = 1500;
 const SUCCESS_DISPLAY_DURATION = 3000;
 const BUTTON_SUCCESS_DURATION = 3000;
 
-const LoginPage = ({ onForgotPassword = () => {} }) => {
+const LoginPage = ({ onForgotPassword = () => {}, onSignUp = () => {} }) => {
   // State management
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -221,7 +221,14 @@ const LoginPage = ({ onForgotPassword = () => {} }) => {
             <div className="signup-row">
               <span className="signup-text">
                 Don't have an account?{' '}
-                <a href="#" className="signup-link" onClick={(e) => e.preventDefault()}>
+                <a
+                  href="#"
+                  className="signup-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSignUp();
+                  }}
+                >
                   Sign up
                 </a>
               </span>
