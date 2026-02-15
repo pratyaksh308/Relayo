@@ -91,6 +91,10 @@ html, body {
   background: #0f172a;
   padding: 2.5rem;
   border-radius: 18px;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.55);
+  
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* ============================================
@@ -139,6 +143,58 @@ html, body {
   display: block;
 }
 
+.auth-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  color: #e5e7eb;
+}
+
+.form-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 0.6rem 0;
+}
+
+.password-hint {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-top: -4px;
+}
+
+.form-section-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #64748b;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.security-section {
+  margin-top: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  animation: securityFadeIn 0.5s ease 0.2s both;
+}
+
+@keyframes securityFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ============================================
    FORM & INPUTS
    ============================================ */
@@ -148,6 +204,11 @@ html, body {
   gap: 1rem;
   text-align: left;
 }
+
+.relayo-form > .relayo-field + .relayo-field {
+  margin-top: -0.35rem;
+}
+
 
 .relayo-label {
   font-size: 0.8rem;
@@ -217,7 +278,7 @@ html, body {
    BUTTON
    ============================================ */
 .relayo-button {
-  margin-top: 1rem;
+  margin-top: 1.6rem;
   padding: 0.8rem;
   border-radius: 999px;
   border: none;

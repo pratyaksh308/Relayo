@@ -13,14 +13,11 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [passwordCaretPos, setPasswordCaretPos] = useState(null);
-  const [confirmCaretPos, setConfirmCaretPos] = useState(null);
 
   const passwordRef = useRef(null);
-  const confirmPasswordRef = useRef(null);
 
   const handleSubmit = useCallback(
     (event) => {
@@ -64,17 +61,6 @@ const RegisterPage = () => {
     }, 0);
   }, [passwordCaretPos]);
 
-  const toggleConfirmPasswordVisibility = useCallback(() => {
-    const currentPos = confirmCaretPos;
-    setShowConfirmPassword((prev) => !prev);
-
-    setTimeout(() => {
-      if (confirmPasswordRef.current && currentPos !== null) {
-        confirmPasswordRef.current.setSelectionRange(currentPos, currentPos);
-      }
-    }, 0);
-  }, [confirmCaretPos]);
-
   return (
     <div className="relayo-root fade-in">
       <div className="relayo-overlay">
@@ -83,8 +69,9 @@ const RegisterPage = () => {
             <img src={relayoIcon} alt="Relayo" className="relayo-logo" />
           </div>
 
-          <div className="subtitle-centre">
-            <p className="relayo-subtitle">Create your account to start chatting</p>
+          <div className="auth-header">
+            <h2 className="auth-title">Join Relayo</h2>
+            <p className="relayo-subtitle">Create your secure workspace in seconds</p>
           </div>
 
           <form className="relayo-form" onSubmit={handleSubmit} noValidate>
@@ -95,6 +82,7 @@ const RegisterPage = () => {
               )}
             </div>
 
+            <p className="form-section-label">ACCOUNT DETAILS</p>
             <div className="relayo-field">
               <label className="relayo-label" htmlFor="register-name">
                 Name
@@ -103,7 +91,7 @@ const RegisterPage = () => {
                 id="register-name"
                 type="text"
                 className="relayo-input"
-                placeholder="John Doe"
+                placeholder="Your Name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
               />
@@ -123,10 +111,14 @@ const RegisterPage = () => {
               />
             </div>
 
-            <div className="relayo-field">
-              <label className="relayo-label" htmlFor="register-password">
-                Password
-              </label>
+            <div className="form-divider" />
+
+            <div className="security-section">
+              <p className="form-section-label">SECURITY</p>
+              <div className="relayo-field">
+                <label className="relayo-label" htmlFor="register-password">
+                  Password
+                </label>
               <div className="password-box">
                 <input
                   id="register-password"
@@ -149,34 +141,23 @@ const RegisterPage = () => {
                   {showPassword ? 'Hide' : 'Show'}
                 </span>
               </div>
-            </div>
+              </div>
 
-            <div className="relayo-field">
-              <label className="relayo-label" htmlFor="register-confirm-password">
+              <div className="relayo-field">
+                <label className="relayo-label" htmlFor="register-confirm-password">
                 Confirm password
-              </label>
-              <div className="password-box">
+                </label>
                 <input
                   id="register-confirm-password"
-                  ref={confirmPasswordRef}
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type="password"
                   className="relayo-input"
                   placeholder="********"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
-                  onSelect={(event) => setConfirmCaretPos(event.target.selectionStart)}
                 />
-                <span
-                  className="eye-icon"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={toggleConfirmPasswordVisibility}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showConfirmPassword ? 'Hide' : 'Show'}
-                </span>
               </div>
+
+              <p className="password-hint">Use at least 6 characters</p>
             </div>
 
             <button type="submit" className="relayo-button">
