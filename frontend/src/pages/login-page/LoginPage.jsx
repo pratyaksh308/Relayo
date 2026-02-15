@@ -10,12 +10,11 @@ const LOADING_DELAY = 1500;
 const SUCCESS_DISPLAY_DURATION = 3000;
 const BUTTON_SUCCESS_DURATION = 3000;
 
-const LoginPage = ({ onForgotPassword }) => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const handleForgotPassword = useCallback(() => {
-    if (onForgotPassword) onForgotPassword();
-    else navigate('/forgot-password');
-  }, [onForgotPassword, navigate]);
+    navigate('/forgot-password');
+  }, [navigate]);
 
   // State management
   const [email, setEmail] = useState('');
@@ -228,7 +227,14 @@ const LoginPage = ({ onForgotPassword }) => {
             <div className="signup-row">
               <span className="signup-text">
                 Don't have an account?{' '}
-                <a href="/register" className="signup-link" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>
+                <a
+                  href="/register"
+                  className="signup-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/register');
+                  }}
+                >
                   Sign up
                 </a>
               </span>
