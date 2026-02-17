@@ -22,6 +22,8 @@ html, body {
 .remember-row span,
 .signup-text,
 .eye-icon,
+.auth-title,
+.form-section-label,
 .relayo-button {
   user-select: none;
 }
@@ -34,10 +36,38 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Base gradient fallback for when video is unavailable */
   background: radial-gradient(circle at top left, #1e293b 0, transparent 45%),
     linear-gradient(135deg, #050b1a 0%, #0b132b 100%);
+  position: relative;
+  overflow: hidden;
   color: #e5e7eb;
   font-family: system-ui, sans-serif;
+}
+
+/* Fullscreen background video for all auth pages */
+.relayo-auth-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+  filter: saturate(1.1);
+}
+
+/* Dark overlay above video to keep UI readable */
+.relayo-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.94), transparent 60%),
+    linear-gradient(135deg, rgba(3, 7, 18, 0.92), rgba(15, 23, 42, 0.96));
 }
 
 /* ============================================
@@ -91,6 +121,10 @@ html, body {
   background: #0f172a;
   padding: 2.5rem;
   border-radius: 18px;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.55);
+  
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* ============================================
@@ -139,6 +173,58 @@ html, body {
   display: block;
 }
 
+.auth-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  color: #e5e7eb;
+}
+
+.form-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 0.6rem 0;
+}
+
+.password-hint {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-top: -4px;
+}
+
+.form-section-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #64748b;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.security-section {
+  margin-top: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  animation: securityFadeIn 0.5s ease 0.2s both;
+}
+
+@keyframes securityFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ============================================
    FORM & INPUTS
    ============================================ */
@@ -148,6 +234,11 @@ html, body {
   gap: 1rem;
   text-align: left;
 }
+
+.relayo-form > .relayo-field + .relayo-field {
+  margin-top: -0.35rem;
+}
+
 
 .relayo-label {
   font-size: 0.8rem;
@@ -217,7 +308,7 @@ html, body {
    BUTTON
    ============================================ */
 .relayo-button {
-  margin-top: 1rem;
+  margin-top: 1.6rem;
   padding: 0.8rem;
   border-radius: 999px;
   border: none;

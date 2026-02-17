@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import relayoIcon from '../../assets/images/relayo-r.png';
+import authBgVideo from '../../assets/video/auth-bg.mp4';
 import './LoginPage.css';
 
 // Constants
@@ -123,6 +124,14 @@ const LoginPage = () => {
 
   return (
     <div className="relayo-root fade-in">
+      <video
+        className="relayo-auth-video"
+        src={authBgVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
       <div className="relayo-overlay">
         <div className="relayo-card">
           {/* Logo */}
