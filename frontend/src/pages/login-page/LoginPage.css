@@ -22,6 +22,8 @@ html, body {
 .remember-row span,
 .signup-text,
 .eye-icon,
+.auth-title,
+.form-section-label,
 .relayo-button {
   user-select: none;
 }
@@ -34,10 +36,38 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Base gradient fallback for when video is unavailable */
   background: radial-gradient(circle at top left, #1e293b 0, transparent 45%),
     linear-gradient(135deg, #050b1a 0%, #0b132b 100%);
+  position: relative;
+  overflow: hidden;
   color: #e5e7eb;
   font-family: system-ui, sans-serif;
+}
+
+/* Fullscreen background video for all auth pages */
+.relayo-auth-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+  filter: saturate(1.1);
+}
+
+/* Dark overlay above video to keep UI readable */
+.relayo-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.94), transparent 60%),
+    linear-gradient(135deg, rgba(3, 7, 18, 0.92), rgba(15, 23, 42, 0.96));
 }
 
 /* ============================================
