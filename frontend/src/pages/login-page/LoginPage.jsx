@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import relayoIcon from '../../assets/images/relayo-r.png';
 import authBgVideo from '../../assets/video/auth-bg.mp4';
 import './LoginPage.css';
+import { loginUser } from "../../api/auth.api";
 
 // Constants
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -84,27 +85,28 @@ const LoginPage = () => {
 
     setLoading(true);
 
-    // Simulate API call
+loginUser({ email, password })
+  .then((res) => {
+    setLoading(false);
+    setButtonSuccess(true);
+
+    const successMessage = rememberMe
+      ? "Signed in & remembered. Welcome back to Relayo."
+      : "Signed in successfully. Welcome back to Relayo.";
+
+    setSuccess(successMessage);
+
+    localStorage.setItem("token", res.data.token);
+
     setTimeout(() => {
-      setLoading(false);
-      setButtonSuccess(true);
-
-      const successMessage = rememberMe
-        ? 'Signed in & remembered. Welcome back to Relayo.'
-        : 'Signed in successfully. Welcome back to Relayo.';
-
-      setSuccess(successMessage);
-
-      // Reset button success state
-      setTimeout(() => {
-        setButtonSuccess(false);
-      }, BUTTON_SUCCESS_DURATION);
-
-      // Clear success message
-      setTimeout(() => {
-        setSuccess('');
-      }, SUCCESS_DISPLAY_DURATION);
-    }, LOADING_DELAY);
+      setButtonSuccess(false);
+      navigate("/home");
+    }, BUTTON_SUCCESS_DURATION);
+  })
+  .catch((err) => {
+    setLoading(false);
+    setError(err.response?.data?.message || "Login failed");
+  });
   }, [validateForm, rememberMe]);
 
   // Render alert message
