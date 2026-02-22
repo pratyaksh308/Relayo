@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import roomRoutes from "./routes/room.routes.js";
+import messageRoutes from "./routes/message.routes.js";
 
 dotenv.config();
 
@@ -33,5 +35,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/rooms", roomRoutes);
+app.use("/api/messages", messageRoutes);
 
 export default app;

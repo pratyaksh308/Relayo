@@ -40,7 +40,7 @@ const ForgotPasswordPage = ({ onBackToLogin }) => {
       try {
         const { data } = await forgotPassword({ email });
         setSuccess(data.message || 'Reset link sent');
-        // Use the real token from the API (sent for testing; in production you'd get this via email)
+        // Use the real token from the API (sent for testing; in production it will be done via email)
         if (data.resetToken) {
           setTimeout(() => {
             navigate(`/reset-password/${data.resetToken}`);
