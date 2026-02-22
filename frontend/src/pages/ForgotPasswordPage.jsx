@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import relayoIcon from '../assets/images/relayo-r.png';
 import authBgVideo from '../assets/video/auth-bg.mp4';
 import '../styles/auth.css';
+import { forgotPassword } from '../api/auth.api';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ForgotPasswordPage = ({ onBackToLogin }) => {
   const navigate = useNavigate();
+
   const handleBackToLogin = useCallback(() => {
     if (onBackToLogin) onBackToLogin();
     else navigate('/login');
@@ -16,27 +18,43 @@ const ForgotPasswordPage = ({ onBackToLogin }) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
       setError('');
+      setSuccess('');
 
       if (!email.trim()) {
-        setSuccess('');
         setError('Please enter your email.');
         return;
       }
 
       if (!EMAIL_REGEX.test(email)) {
-        setSuccess('');
         setError('Enter a valid email address.');
         return;
       }
 
-      setSuccess('Reset link sent');
+      setLoading(true);
+      try {
+        const { data } = await forgotPassword({ email });
+        setSuccess(data.message || 'Reset link sent');
+        // Use the real token from the API (sent for testing; in production you'd get this via email)
+        if (data.resetToken) {
+          setTimeout(() => {
+            navigate(`/reset-password/${data.resetToken}`);
+          }, 1500);
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.message || err.message || 'Failed to send reset link'
+        );
+      } finally {
+        setLoading(false);
+      }
     },
-    [email]
+    [email, navigate]
   );
 
   return (
@@ -63,7 +81,9 @@ const ForgotPasswordPage = ({ onBackToLogin }) => {
             <div className="alert-space">
               {error && <div className="relayo-alert relayo-alert-error">{error}</div>}
               {success && (
-                <div className="relayo-alert relayo-alert-success success-animate">{success}</div>
+                <div className="relayo-alert relayo-alert-success success-animate">
+                  {success}
+                </div>
               )}
             </div>
 
@@ -81,8 +101,8 @@ const ForgotPasswordPage = ({ onBackToLogin }) => {
               />
             </div>
 
-            <button type="submit" className="relayo-button">
-              SEND RESET LINK
+            <button type="submit" className="relayo-button" disabled={loading}>
+              {loading ? "Sending…" : "SEND RESET LINK"}
             </button>
 
             <div className="auth-link-row">
