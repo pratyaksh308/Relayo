@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import relayoIcon from '../../assets/images/relayo-r.png';
 import authBgVideo from '../../assets/video/auth-bg.mp4';
 import '../login-page/LoginPage.css';
+import { registerUser } from "../../api/auth.api";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 6;
@@ -21,35 +22,52 @@ const RegisterPage = () => {
   const passwordRef = useRef(null);
 
   const handleSubmit = useCallback(
-    (event) => {
-      event.preventDefault();
-      setError('');
-      setSuccess('');
+  async (event) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
 
-      if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-        setError('Please fill in all fields.');
-        return;
-      }
+    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setError('Please fill in all fields.');
+      return;
+    }
 
-      if (!EMAIL_REGEX.test(email)) {
-        setError('Enter a valid email address.');
-        return;
-      }
+    if (!EMAIL_REGEX.test(email)) {
+      setError('Enter a valid email address.');
+      return;
+    }
 
-      if (password.length < MIN_PASSWORD_LENGTH) {
-        setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
-        return;
-      }
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
 
-      if (password !== confirmPassword) {
-        setError('Passwords do not match.');
-        return;
-      }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    try {
+      const res = await registerUser({
+        name,
+        email,
+        password,
+      });
 
       setSuccess('Account created successfully.');
-    },
-    [name, email, password, confirmPassword]
-  );
+
+      console.log('Register response:', res.data);
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed');
+    }
+  },
+  [name, email, password, confirmPassword, navigate]
+);
 
   const togglePasswordVisibility = useCallback(() => {
     const currentPos = passwordCaretPos;
