@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import LoginPage from "./pages/login-page/LoginPage";
-import RegisterPage from "./pages/register-page/RegisterPage";
-import ForgotPasswordPage from "./pages/forgot-password-page/ForgotPasswordPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import HomePage from "./pages/HomePage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 

@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import relayoIcon from '../../assets/images/relayo-r.png';
-import authBgVideo from '../../assets/video/auth-bg.mp4';
-import './LoginPage.css';
-import { loginUser } from "../../api/auth.api";
+import relayoIcon from '../assets/images/relayo-r.png';
+import authBgVideo from '../assets/video/auth-bg.mp4';
+import '../styles/auth.css';
+import { loginUser } from "../api/auth.api";
 
 // Constants
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
