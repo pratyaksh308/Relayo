@@ -100,7 +100,7 @@ loginUser({ email, password })
 
     setTimeout(() => {
       setButtonSuccess(false);
-      navigate("/home");
+      navigate("/chat-list");
     }, BUTTON_SUCCESS_DURATION);
   })
   .catch((err) => {

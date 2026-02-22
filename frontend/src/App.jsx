@@ -6,6 +6,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
+import ChatListPage from "./pages/ChatListPage.jsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       {/* App Pages */}
       <Route path="/home" element={<HomePage />} />
       <Route path="/chat" element={<ChatPage />} />
+      <Route path="/chat-list" element={<ChatListPage />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" />} />
