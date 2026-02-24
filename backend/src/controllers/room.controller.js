@@ -35,7 +35,14 @@ export const getMyRooms = async (req, res) => {
 
     const rooms = await Room.find({
       members: userId,
-    }).populate("members", "name email");
+    })
+      .populate("members", "name email")
+      // include lastMessage document so frontend can render a preview
+      .populate({
+        path: "lastMessage",
+        select: "text sender createdAt",
+        populate: { path: "sender", select: "name" },
+      });
 
     res.json(rooms);
   } catch (error) {

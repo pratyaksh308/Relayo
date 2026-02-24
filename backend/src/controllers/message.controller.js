@@ -24,6 +24,9 @@ export const sendMessage = async (req, res) => {
       text,
     });
 
+    // update room's lastMessage pointer so list preview works
+    await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
+
     res.status(201).json({
       message: "Message sent",
       data: message,
