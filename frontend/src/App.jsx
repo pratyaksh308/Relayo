@@ -22,7 +22,7 @@ function App() {
 
       {/* App Pages */}
       <Route path="/home" element={<HomePage />} />
-      <Route path="/chat" element={<ChatPage />} />
+      <Route path="/chat/:chatId" element={<ChatPage />} />
       <Route path="/chat-list" element={<ChatListPage />} />
 
       {/* Fallback */}
