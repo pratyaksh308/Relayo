@@ -3,16 +3,18 @@ import Room from "../models/Room.js";
 // Create new room (1-to-1 or group)
 export const createRoom = async (req, res) => {
   try {
-    const { members, isGroup } = req.body;
+    const { members, participants, isGroup, name } = req.body;
+    const roomParticipants = Array.isArray(participants) ? participants : members;
 
-    if (!members || members.length < 2) {
+    if (!roomParticipants || roomParticipants.length < 2) {
       return res.status(400).json({
         message: "At least two members required",
       });
     }
 
     const room = await Room.create({
-      members,
+      name: name || "",
+      participants: roomParticipants,
       isGroup: isGroup || false,
     });
 
@@ -34,9 +36,9 @@ export const getMyRooms = async (req, res) => {
     const userId = req.user.id;
 
     const rooms = await Room.find({
-      members: userId,
+      participants: userId,
     })
-      .populate("members", "name email")
+      .populate("participants", "name email")
       // include lastMessage document so frontend can render a preview
       .populate({
         path: "lastMessage",
