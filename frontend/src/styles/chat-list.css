@@ -12,6 +12,7 @@
 }
 
 .chat-panel {
+  position: relative;
   width: 100%;
   max-width: 420px;
   height: 92vh;
@@ -157,6 +158,10 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+.new-chat-btn:hover {
+  background: rgba(255, 179, 71, 0.18);
 }
 
 .chat-list {
@@ -349,6 +354,106 @@
   color: #ffb347;
 }
 
+.create-chat-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 20, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  z-index: 20;
+}
+
+.create-chat-modal {
+  width: min(100%, 340px);
+  background: linear-gradient(180deg, #111a36, #080d1e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.55);
+}
+
+.create-chat-modal h2 {
+  margin: 0;
+  font-size: 17px;
+  color: #f3f4f6;
+}
+
+.create-chat-modal p {
+  margin: 8px 0 0;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.create-chat-label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  color: #dbe3ff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.create-chat-input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(6, 11, 28, 0.92);
+  color: #e5e7eb;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: 2px solid transparent;
+}
+
+.create-chat-input:focus {
+  outline-color: rgba(255, 159, 26, 0.25);
+  border-color: rgba(255, 159, 26, 0.95);
+}
+
+.create-chat-error {
+  margin: 8px 0 0;
+  color: #ffb4b4;
+  font-size: 12px;
+}
+
+.create-chat-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.create-btn,
+.cancel-btn {
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.create-btn {
+  background: linear-gradient(135deg, #ffb347, #ff7a00);
+  color: #1a1308;
+}
+
+.create-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.cancel-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 @media (max-width: 680px) {
   .chat-shell {
     padding: 10px;
@@ -357,5 +462,14 @@
   .chat-panel {
     max-width: 420px;
     height: 92vh;
+  }
+
+  .create-chat-actions {
+    justify-content: stretch;
+  }
+
+  .create-btn,
+  .cancel-btn {
+    flex: 1;
   }
 }

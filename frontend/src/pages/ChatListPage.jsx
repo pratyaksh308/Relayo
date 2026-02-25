@@ -1,7 +1,8 @@
-import { useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import relayoIcon from "../assets/images/relayo-r.png";
 import "../styles/chat-list.css";
+import api from "../api/axios";
 import { getRooms } from "../api/room.api";
 
 const AVATAR_CLASSES = [
@@ -14,6 +15,7 @@ const AVATAR_CLASSES = [
   "avatar-indigo",
   "avatar-salmon",
 ];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function formatChatMeta(createdAt) {
   if (!createdAt) return "";
@@ -53,22 +55,27 @@ export default function ChatListPage() {
   const [loading, setLoading] = useState(true);
   const [activeChatId, setActiveChatId] = useState(null);
   const [query, setQuery] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [createError, setCreateError] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const fetchRooms = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await getRooms();
+      setRooms(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Failed to load rooms", error);
+      setRooms([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const res = await getRooms();
-        setRooms(Array.isArray(res.data) ? res.data : []);
-      } catch (error) {
-        console.error("Failed to load rooms", error);
-        setRooms([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchRooms();
-  }, []);
+  }, [fetchRooms]);
 
   const normalizedChats = useMemo(() => {
     return rooms.map((room, index) => ({
@@ -100,6 +107,52 @@ export default function ChatListPage() {
         avatarClass: room.avatarClass,
       },
     });
+  };
+
+  const handleOpenCreateModal = () => {
+    setInviteEmail("");
+    setCreateError("");
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    if (creating) return;
+    setIsCreateModalOpen(false);
+    setInviteEmail("");
+    setCreateError("");
+  };
+
+  const handleCreateRoom = async () => {
+    const normalizedEmail = inviteEmail.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setCreateError("Email is required.");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      setCreateError("Enter a valid email address.");
+      return;
+    }
+
+    setCreateError("");
+    setCreating(true);
+
+    try {
+      await api.post("/rooms", {
+        email: normalizedEmail,
+        participantEmail: normalizedEmail,
+      });
+
+      await fetchRooms();
+      handleCloseCreateModal();
+    } catch (error) {
+      setCreateError(
+        error.response?.data?.message || "Failed to create chat. Try again."
+      );
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
@@ -139,7 +192,11 @@ export default function ChatListPage() {
           <p>
             {query ? `Results (${filteredChats.length})` : "RECENT CHATS"}
           </p>
-          <button type="button" className="new-chat-btn">
+          <button
+            type="button"
+            className="new-chat-btn"
+            onClick={handleOpenCreateModal}
+          >
             New Chat +
           </button>
         </div>
@@ -194,6 +251,58 @@ export default function ChatListPage() {
             Profile
           </button>
         </footer>
+
+        {isCreateModalOpen ? (
+          <div
+            className="create-chat-modal-backdrop"
+            onClick={handleCloseCreateModal}
+            role="presentation"
+          >
+            <section
+              className="create-chat-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="create-chat-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 id="create-chat-title">Create New Chat</h2>
+              <p>Enter the user email to start a conversation.</p>
+
+              <label htmlFor="create-chat-email" className="create-chat-label">
+                User Email
+              </label>
+              <input
+                id="create-chat-email"
+                type="email"
+                className="create-chat-input"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="you@example.com"
+              />
+
+              {createError ? <p className="create-chat-error">{createError}</p> : null}
+
+              <div className="create-chat-actions">
+                <button
+                  type="button"
+                  className="create-btn"
+                  onClick={handleCreateRoom}
+                  disabled={creating}
+                >
+                  {creating ? "Creating..." : "Create"}
+                </button>
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={handleCloseCreateModal}
+                  disabled={creating}
+                >
+                  Cancel
+                </button>
+              </div>
+            </section>
+          </div>
+        ) : null}
       </section>
     </main>
   );
