@@ -1,6 +1,7 @@
 /* Shell */
 .chat-page-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,6 +10,7 @@
   box-sizing: border-box;
   cursor: default;
   user-select: none;
+  overflow: hidden;
 }
 
 /* Main Panel */
@@ -119,22 +121,14 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(180, 180, 255, 0.5) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   cursor: default;
 }
 
 .chat-messages::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #ff9f1a, #ff7a00);
-  border-radius: 999px;
+  width: 0;
+  height: 0;
 }
 
 .chat-empty-state {
@@ -258,4 +252,22 @@
 .chat-send-btn:active {
   transform: translateY(0);
   box-shadow: 0 4px 10px rgba(255, 122, 0, 0.4);
+}
+
+@media (min-width: 1024px) {
+  .chat-page-shell {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .chat-page-panel {
+    max-width: none;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 }

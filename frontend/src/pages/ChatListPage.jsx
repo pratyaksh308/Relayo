@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import relayoIcon from "../assets/images/relayo-r.png";
 import "../styles/chat-list.css";
-import { getRooms } from "../api/room.api";
+import { createRoom, getRooms } from "../api/room.api";
 
 const AVATAR_CLASSES = [
   "avatar-violet",
@@ -53,12 +53,37 @@ export default function ChatListPage() {
   const [loading, setLoading] = useState(true);
   const [activeChatId, setActiveChatId] = useState(null);
   const [query, setQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState("");
+
+  const getCurrentUserId = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.id;
+    } catch {
+      return null;
+    }
+  };
+
+  const loadRooms = async () => {
+    try {
+      const res = await getRooms();
+      setRooms(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Failed to load rooms", error);
+      setRooms([]);
+    }
+  };
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await getRooms();
-        setRooms(Array.isArray(res.data) ? res.data : []);
+        await loadRooms();
       } catch (error) {
         console.error("Failed to load rooms", error);
         setRooms([]);
@@ -102,6 +127,61 @@ export default function ChatListPage() {
     });
   };
 
+  const handleOpenModal = () => {
+    setCreateError("");
+    setEmailInput("");
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    if (createLoading) return;
+    setIsModalOpen(false);
+    setCreateError("");
+    setEmailInput("");
+  };
+
+  const handleCreateChat = async () => {
+    const email = emailInput.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setCreateError("Enter a valid email address.");
+      return;
+    }
+
+    setCreateLoading(true);
+    setCreateError("");
+
+    try {
+      const currentUserId = getCurrentUserId();
+      const targetParticipant = rooms
+        .flatMap((room) => room.participants || [])
+        .find(
+          (participant) =>
+            participant?.email?.toLowerCase() === email &&
+            participant?._id !== currentUserId
+        );
+
+      if (targetParticipant?._id && currentUserId) {
+        await createRoom({
+          participants: [currentUserId, targetParticipant._id],
+          isGroup: false,
+        });
+      } else {
+        // Fallback for backends that accept participant email directly.
+        await createRoom({ email });
+      }
+
+      await loadRooms();
+      handleCloseModal();
+    } catch (error) {
+      console.error("Failed to create room", error);
+      setCreateError(error?.response?.data?.message || "Failed to create chat.");
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
   return (
     <main className="chat-shell">
       <section className="chat-panel" aria-label="Chat list panel">
@@ -115,7 +195,7 @@ export default function ChatListPage() {
               />
             </div>
             <div className="brand-text">
-              <h1>Chats</h1>
+              <h1>Relayo</h1>
               <p>Your conversations</p>
             </div>
           </div>
@@ -139,7 +219,7 @@ export default function ChatListPage() {
           <p>
             {query ? `Results (${filteredChats.length})` : "RECENT CHATS"}
           </p>
-          <button type="button" className="new-chat-btn">
+          <button type="button" className="new-chat-btn" onClick={handleOpenModal}>
             New Chat +
           </button>
         </div>
@@ -194,6 +274,53 @@ export default function ChatListPage() {
             Profile
           </button>
         </footer>
+
+        {isModalOpen ? (
+          <div className="new-chat-modal-overlay" onClick={handleCloseModal}>
+            <div
+              className="new-chat-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Create new chat"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2>New Chat</h2>
+              <p className="new-chat-modal-subtext">Enter user email</p>
+
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="you@example.com"
+                className="new-chat-input"
+                disabled={createLoading}
+              />
+
+              {createError ? (
+                <p className="new-chat-error">{createError}</p>
+              ) : null}
+
+              <div className="new-chat-actions">
+                <button
+                  type="button"
+                  className="new-chat-action cancel"
+                  onClick={handleCloseModal}
+                  disabled={createLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="new-chat-action create"
+                  onClick={handleCreateChat}
+                  disabled={createLoading}
+                >
+                  {createLoading ? "Creating..." : "Create"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </section>
     </main>
   );
