@@ -77,6 +77,15 @@ export default function ChatListPage() {
     fetchRooms();
   }, [fetchRooms]);
 
+  useEffect(() => {
+    document.body.classList.add("no-page-scroll");
+    document.documentElement.classList.add("no-page-scroll");
+    return () => {
+      document.body.classList.remove("no-page-scroll");
+      document.documentElement.classList.remove("no-page-scroll");
+    };
+  }, []);
+
   const normalizedChats = useMemo(() => {
     return rooms.map((room, index) => ({
       ...room,

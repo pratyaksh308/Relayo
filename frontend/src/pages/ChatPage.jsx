@@ -33,6 +33,15 @@ export default function ChatPage() {
   const currentUserId = getCurrentUserId();
   const activeRoomId = roomId || chatId;
 
+  useEffect(() => {
+    document.body.classList.add("no-page-scroll");
+    document.documentElement.classList.add("no-page-scroll");
+    return () => {
+      document.body.classList.remove("no-page-scroll");
+      document.documentElement.classList.remove("no-page-scroll");
+    };
+  }, []);
+
   // -----------------------------
   // Load Messages
   // -----------------------------

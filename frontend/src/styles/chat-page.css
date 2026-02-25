@@ -1,6 +1,7 @@
 /* Shell */
 .chat-page-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,6 +10,7 @@
   box-sizing: border-box;
   cursor: default;
   user-select: none;
+  overflow: hidden;
 }
 
 /* Main Panel */
@@ -258,4 +260,23 @@
 .chat-send-btn:active {
   transform: translateY(0);
   box-shadow: 0 4px 10px rgba(255, 122, 0, 0.4);
+}
+
+@media (min-width: 769px) {
+  .chat-page-shell {
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .chat-page-panel {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
 }

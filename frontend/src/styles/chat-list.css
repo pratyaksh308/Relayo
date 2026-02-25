@@ -9,6 +9,7 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #e5e7eb;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .chat-panel {
@@ -471,5 +472,24 @@
   .create-btn,
   .cancel-btn {
     flex: 1;
+  }
+}
+
+@media (min-width: 769px) {
+  .chat-shell {
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .chat-panel {
+    max-width: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
   }
 }
