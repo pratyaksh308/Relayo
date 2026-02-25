@@ -103,6 +103,7 @@
 
 .search-wrap {
   padding: 10px 14px 6px;
+  user-select: none;
 }
 
 .search-input {
