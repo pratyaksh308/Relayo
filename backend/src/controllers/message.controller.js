@@ -1,9 +1,7 @@
 import Message from "../models/Message.js";
 import Room from "../models/Room.js";
 
-/**
- * Send message
- */
+ // Send message
 export const sendMessage = async (req, res) => {
   try {
     const { roomId, text } = req.body;
@@ -37,9 +35,7 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-/**
- * Get messages by room
- */
+ // Get messages by room
 export const getMessagesByRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
