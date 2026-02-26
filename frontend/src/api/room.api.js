@@ -5,6 +5,6 @@ export const getRooms = () => {
   return api.get("/rooms/my");
 };
 
-export const createRoom = (data) => {
-  return api.post("/rooms", data);
+export const createDirectRoom = (email) => {
+  return api.post("/rooms/direct",{ email });
 };

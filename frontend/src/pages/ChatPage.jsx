@@ -24,7 +24,8 @@ export default function ChatPage() {
 
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.id;
+      const id = payload.id || payload.userId;
+      return id ? String(id) : null;
     } catch {
       return null;
     }
@@ -37,30 +38,40 @@ export default function ChatPage() {
   // Load Messages
   // -----------------------------
   useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const res = await getMessagesByRoom(activeRoomId);
+  let interval;
 
-        const formatted = res.data.map((m) => ({
-          id: m._id,
-          sender: m.sender?._id === currentUserId ? "me" : "other",
-          text: m.text,
-          time: new Date(m.createdAt).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        }));
+  const loadMessages = async () => {
+    try {
+      const res = await getMessagesByRoom(activeRoomId);
 
-        setMessages(formatted);
-      } catch (err) {
-        console.error("Failed to load messages", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const formatted = res.data.map((m) => ({
+        id: m._id,
+        sender: String(m.sender?._id) === String(currentUserId) ? "me" : "other",
+        text: m.text,
+        time: new Date(m.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }));
 
-    if (activeRoomId) loadMessages();
-  }, [activeRoomId, currentUserId]);
+      setMessages(formatted);
+    } catch (err) {
+      console.error("Failed to load messages", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (activeRoomId) {
+    loadMessages();
+
+    interval = setInterval(() => {
+      loadMessages();
+    }, 2000); // refresh every 2 seconds
+  }
+
+  return () => clearInterval(interval);
+}, [activeRoomId, currentUserId]);
 
   // -----------------------------
   // Send Message
