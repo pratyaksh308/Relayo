@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import relayoIcon from "../assets/images/relayo-r.png";
 import "../styles/chat-page.css";
-
 import { getMessagesByRoom, sendMessage } from "../api/message.api";
+import { connectSocket, getSocket } from "../socket";
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -17,7 +17,11 @@ export default function ChatPage() {
   const chatName = location.state?.chatName || "Chat";
   const avatarLetter = chatName.charAt(0).toUpperCase();
 
-  // Get current user id from JWT
+  const activeRoomId = roomId || chatId;
+
+  // -----------------------------
+  // Get current user ID
+  // -----------------------------
   const getCurrentUserId = () => {
     const token = localStorage.getItem("token");
     if (!token) return null;
@@ -32,64 +36,70 @@ export default function ChatPage() {
   };
 
   const currentUserId = getCurrentUserId();
-  const activeRoomId = roomId || chatId;
 
   // -----------------------------
-  // Load Messages
+  // Load messages once (NO polling)
   // -----------------------------
   useEffect(() => {
-  let interval;
+    const loadMessages = async () => {
+      try {
+        const res = await getMessagesByRoom(activeRoomId);
 
-  const loadMessages = async () => {
-    try {
-      const res = await getMessagesByRoom(activeRoomId);
+        const formatted = res.data.map((m) => ({
+          id: m._id,
+          sender:
+            String(m.sender?._id) === String(currentUserId)
+              ? "me"
+              : "other",
+          text: m.text,
+          time: new Date(m.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        }));
 
-      const formatted = res.data.map((m) => ({
-        id: m._id,
-        sender: String(m.sender?._id) === String(currentUserId) ? "me" : "other",
-        text: m.text,
-        time: new Date(m.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      }));
+        setMessages(formatted);
+      } catch (err) {
+        console.error("Failed to load messages", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setMessages(formatted);
-    } catch (err) {
-      console.error("Failed to load messages", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (activeRoomId) {
-    loadMessages();
-
-    interval = setInterval(() => {
+    if (activeRoomId) {
       loadMessages();
-    }, 2000); // refresh every 2 seconds
-  }
-
-  return () => clearInterval(interval);
-}, [activeRoomId, currentUserId]);
+    }
+  }, [activeRoomId, currentUserId]);
 
   // -----------------------------
-  // Send Message
+  // Connect + Join room
   // -----------------------------
-  const handleSend = async () => {
-    if (!messageInput.trim()) return;
+  useEffect(() => {
+    const socket = connectSocket();
 
-    try {
-      const res = await sendMessage({
-        roomId: activeRoomId,
-        text: messageInput,
-      });
+    if (activeRoomId) {
+      socket.emit("joinRoom", activeRoomId);
+    }
 
-      const m = res.data.data;
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [activeRoomId]);
+
+  // -----------------------------
+  // Listen for real-time messages
+  // -----------------------------
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.on("newMessage", (m) => {
+      const isMine =
+        String(m.sender) === String(currentUserId);
 
       const newMsg = {
         id: m._id,
-        sender: "me",
+        sender: isMine ? "me" : "other",
         text: m.text,
         time: new Date(m.createdAt).toLocaleTimeString([], {
           hour: "2-digit",
@@ -97,14 +107,40 @@ export default function ChatPage() {
         }),
       };
 
-      setMessages((prev) => [...prev, newMsg]);
+      // Prevent duplicates
+      setMessages((prev) => {
+        const exists = prev.some((msg) => msg.id === newMsg.id);
+        if (exists) return prev;
+        return [...prev, newMsg];
+      });
+    });
+
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [currentUserId]);
+
+  // -----------------------------
+  // Send message
+  // -----------------------------
+  const handleSend = async () => {
+    if (!messageInput.trim()) return;
+
+    try {
+      await sendMessage({
+        roomId: activeRoomId,
+        text: messageInput,
+      });
+
+      // DO NOT manually append
+      // Let socket event handle it
+
       setMessageInput("");
     } catch (err) {
       console.error("Send message failed", err);
     }
   };
 
-  // Send on Enter key
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -152,7 +188,9 @@ export default function ChatPage() {
               <div
                 key={msg.id}
                 className={`message-row ${
-                  msg.sender === "me" ? "message-row-me" : "message-row-other"
+                  msg.sender === "me"
+                    ? "message-row-me"
+                    : "message-row-other"
                 }`}
               >
                 <div
@@ -184,7 +222,6 @@ export default function ChatPage() {
             Send
           </button>
         </footer>
-
       </section>
     </main>
   );
