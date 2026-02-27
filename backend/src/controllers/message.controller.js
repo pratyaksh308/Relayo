@@ -1,5 +1,6 @@
 import Message from "../models/Message.js";
 import Room from "../models/Room.js";
+import { getIO } from "../socket.js";
 
  // Send message
 export const sendMessage = async (req, res) => {
@@ -24,6 +25,9 @@ export const sendMessage = async (req, res) => {
 
     // update room's lastMessage pointer so list preview works
     await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
+
+    const io = getIO();
+    io.to(roomId).emit("newMessage", message);
 
     res.status(201).json({
       message: "Message sent",
