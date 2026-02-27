@@ -1,5 +1,5 @@
 import express from "express";
-import { createRoom, getMyRooms } from "../controllers/room.controller.js";
+import { createRoom, getMyRooms, createDirectRoom } from "../controllers/room.controller.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 
 const router = express.Router();
@@ -9,5 +9,7 @@ router.post("/", authMiddleware, createRoom);
 
 // Get my rooms
 router.get("/my", authMiddleware, getMyRooms);
+
+router.post("/direct", authMiddleware, createDirectRoom);
 
 export default router;

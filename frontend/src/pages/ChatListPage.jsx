@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import relayoIcon from "../assets/images/relayo-r.png";
 import "../styles/chat-list.css";
-import { createRoom, getRooms } from "../api/room.api";
+import { createDirectRoom, getRooms } from "../api/room.api";
 
 const AVATAR_CLASSES = [
   "avatar-violet",
@@ -64,7 +64,8 @@ export default function ChatListPage() {
 
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.id;
+      const id = payload.id || payload.userId;
+      return id ? String(id) : null;
     } catch {
       return null;
     }
@@ -95,17 +96,33 @@ export default function ChatListPage() {
     fetchRooms();
   }, []);
 
+  const currentUserId = getCurrentUserId();
+
   const normalizedChats = useMemo(() => {
-    return rooms.map((room, index) => ({
+  return rooms.map((room, index) => {
+    let displayName = "Unnamed Chat";
+
+    if (!room.isGroup && room.participants?.length > 0) {
+      const otherUser = room.participants.find(
+        (participant) => String(participant._id) !== String(currentUserId)
+      );
+
+      if (otherUser?.name) {
+        displayName = otherUser.name;
+      }
+    }
+
+    return {
       ...room,
-      displayName: room.name || "Unnamed Chat",
+      displayName,
       preview: room.lastMessage?.text || "No messages yet",
       meta: formatChatMeta(room.lastMessage?.createdAt),
       avatarClass:
         room.avatarClass ||
         AVATAR_CLASSES[index % AVATAR_CLASSES.length],
-    }));
-  }, [rooms]);
+    };
+  });
+}, [rooms, currentUserId]);
 
   const filteredChats = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -141,46 +158,31 @@ export default function ChatListPage() {
   };
 
   const handleCreateChat = async () => {
-    const email = emailInput.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const email = emailInput.trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRegex.test(email)) {
-      setCreateError("Enter a valid email address.");
-      return;
-    }
+  if (!emailRegex.test(email)) {
+    setCreateError("Enter a valid email address.");
+    return;
+  }
 
-    setCreateLoading(true);
-    setCreateError("");
+  setCreateLoading(true);
+  setCreateError("");
 
-    try {
-      const currentUserId = getCurrentUserId();
-      const targetParticipant = rooms
-        .flatMap((room) => room.participants || [])
-        .find(
-          (participant) =>
-            participant?.email?.toLowerCase() === email &&
-            participant?._id !== currentUserId
-        );
+  try {
+    await createDirectRoom(email);
 
-      if (targetParticipant?._id && currentUserId) {
-        await createRoom({
-          participants: [currentUserId, targetParticipant._id],
-          isGroup: false,
-        });
-      } else {
-        // Fallback for backends that accept participant email directly.
-        await createRoom({ email });
-      }
-
-      await loadRooms();
-      handleCloseModal();
-    } catch (error) {
-      console.error("Failed to create room", error);
-      setCreateError(error?.response?.data?.message || "Failed to create chat.");
-    } finally {
-      setCreateLoading(false);
-    }
-  };
+    await loadRooms();
+    handleCloseModal();
+  } catch (error) {
+    console.error("Failed to create room", error);
+    setCreateError(
+      error?.response?.data?.message || "Failed to create chat."
+    );
+  } finally {
+    setCreateLoading(false);
+  }
+};
 
   return (
     <main className="chat-shell">

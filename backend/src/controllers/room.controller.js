@@ -1,4 +1,5 @@
 import Room from "../models/Room.js";
+import User from "../models/User.js";
 
 // Create new room (1-to-1 or group)
 export const createRoom = async (req, res) => {
@@ -52,5 +53,47 @@ export const getMyRooms = async (req, res) => {
     res.status(500).json({
       message: "Server error",
     });
+  }
+};
+
+export const createDirectRoom = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const currentUserId = req.user.id;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email required" });
+    }
+
+    // Find target user
+    const targetUser = await User.findOne({ email });
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (targetUser._id.toString() === currentUserId) {
+      return res.status(400).json({ message: "Cannot create chat with yourself" });
+    }
+
+    // Check if room already exists
+    const existingRoom = await Room.findOne({
+      isGroup: false,
+      participants: { $all: [currentUserId, targetUser._id] },
+    });
+
+    if (existingRoom) {
+      return res.status(200).json(existingRoom);
+    }
+
+    // Create new room
+    const newRoom = await Room.create({
+      participants: [currentUserId, targetUser._id],
+      isGroup: false,
+    });
+
+    res.status(201).json(newRoom);
+  } catch (error) {
+    console.error("Create direct room error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
