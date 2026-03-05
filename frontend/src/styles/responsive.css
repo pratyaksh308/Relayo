@@ -1,0 +1,15 @@
+@media (max-width: 1024px) {
+    .right-panel {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+}
