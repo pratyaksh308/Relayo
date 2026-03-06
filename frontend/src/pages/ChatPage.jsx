@@ -1,228 +1,26 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
-import relayoIcon from "../assets/images/relayo-r.png";
-import "../styles/chat-page.css";
-import { getMessagesByRoom, sendMessage } from "../api/message.api";
-import { connectSocket, getSocket } from "../socket";
+import Sidebar from "../components/chat/Sidebar";
+import ChatArea from "../components/chat/ChatArea";
+import RightPanel from "../components/chat/RightPanel";
 
 export default function ChatPage() {
-  const navigate = useNavigate();
-  const { chatId, roomId } = useParams();
-  const location = useLocation();
+    const dummyConversation = null;
 
-  const [messages, setMessages] = useState([]);
-  const [messageInput, setMessageInput] = useState("");
-  const [loading, setLoading] = useState(true);
+    return (
+        <div className="app-container">
+            <Sidebar
+                conversations={[]}
+                selectedConversationId={null}
+                onSelectConversation={() => { }}
+            />
 
-  const chatName = location.state?.chatName || "Chat";
-  const avatarLetter = chatName.charAt(0).toUpperCase();
+            <ChatArea
+                conversation={dummyConversation}
+                onSendMessage={() => { }}
+            />
 
-  const activeRoomId = roomId || chatId;
-
-  // -----------------------------
-  // Get current user ID
-  // -----------------------------
-  const getCurrentUserId = () => {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const id = payload.id || payload.userId;
-      return id ? String(id) : null;
-    } catch {
-      return null;
-    }
-  };
-
-  const currentUserId = getCurrentUserId();
-
-  // -----------------------------
-  // Load messages once (NO polling)
-  // -----------------------------
-  useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const res = await getMessagesByRoom(activeRoomId);
-
-        const formatted = res.data.map((m) => ({
-          id: m._id,
-          sender:
-            String(m.sender?._id) === String(currentUserId)
-              ? "me"
-              : "other",
-          text: m.text,
-          time: new Date(m.createdAt).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        }));
-
-        setMessages(formatted);
-      } catch (err) {
-        console.error("Failed to load messages", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (activeRoomId) {
-      loadMessages();
-    }
-  }, [activeRoomId, currentUserId]);
-
-  // -----------------------------
-  // Connect + Join room
-  // -----------------------------
-  useEffect(() => {
-    const socket = connectSocket();
-
-    if (activeRoomId) {
-      socket.emit("joinRoom", activeRoomId);
-    }
-
-    return () => {
-      socket.off("newMessage");
-    };
-  }, [activeRoomId]);
-
-  // -----------------------------
-  // Listen for real-time messages
-  // -----------------------------
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
-
-    socket.on("newMessage", (m) => {
-      const isMine =
-        String(m.sender) === String(currentUserId);
-
-      const newMsg = {
-        id: m._id,
-        sender: isMine ? "me" : "other",
-        text: m.text,
-        time: new Date(m.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-
-      // Prevent duplicates
-      setMessages((prev) => {
-        const exists = prev.some((msg) => msg.id === newMsg.id);
-        if (exists) return prev;
-        return [...prev, newMsg];
-      });
-    });
-
-    return () => {
-      socket.off("newMessage");
-    };
-  }, [currentUserId]);
-
-  // -----------------------------
-  // Send message
-  // -----------------------------
-  const handleSend = async () => {
-    if (!messageInput.trim()) return;
-
-    try {
-      await sendMessage({
-        roomId: activeRoomId,
-        text: messageInput,
-      });
-
-      // DO NOT manually append
-      // Let socket event handle it
-
-      setMessageInput("");
-    } catch (err) {
-      console.error("Send message failed", err);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  return (
-    <main className="chat-page-shell">
-      <section className="chat-page-panel">
-        <header className="chat-page-header">
-          <button
-            onClick={() => navigate("/chat-list")}
-            className="chat-back-btn"
-          >
-            ←
-          </button>
-
-          <div className="chat-title-wrap">
-            <span className="avatar avatar-violet chat-header-avatar">
-              {avatarLetter}
-            </span>
-            <div className="chat-title-meta">
-              <h1>{chatName}</h1>
-              <p>Secure room</p>
-            </div>
-          </div>
-
-          <div className="chat-header-brand">
-            <img src={relayoIcon} alt="Relayo" className="chat-brand-logo" />
-          </div>
-        </header>
-
-        <section className="chat-messages">
-          {loading ? (
-            <div className="chat-empty-state">
-              <p>Loading conversation…</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="chat-empty-state">
-              <p>No messages yet. Say hi 👋</p>
-            </div>
-          ) : (
-            messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`message-row ${
-                  msg.sender === "me"
-                    ? "message-row-me"
-                    : "message-row-other"
-                }`}
-              >
-                <div
-                  className={`message-bubble ${
-                    msg.sender === "me"
-                      ? "message-bubble-me"
-                      : "message-bubble-other"
-                  }`}
-                >
-                  <p>{msg.text}</p>
-                  <time>{msg.time}</time>
-                </div>
-              </div>
-            ))
-          )}
-        </section>
-
-        <footer className="chat-composer">
-          <input
-            type="text"
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="chat-input"
-          />
-
-          <button onClick={handleSend} className="chat-send-btn">
-            Send
-          </button>
-        </footer>
-      </section>
-    </main>
-  );
+            <RightPanel
+                conversation={dummyConversation}
+            />
+        </div>
+    );
 }

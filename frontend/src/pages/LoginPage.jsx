@@ -28,7 +28,7 @@ const LoginPage = () => {
   const [buttonSuccess, setButtonSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [caretPos, setCaretPos] = useState(null);
-  
+
   const passwordRef = useRef(null);
 
   // Validation functions
@@ -85,28 +85,28 @@ const LoginPage = () => {
 
     setLoading(true);
 
-loginUser({ email, password })
-  .then((res) => {
-    setLoading(false);
-    setButtonSuccess(true);
+    loginUser({ email, password })
+      .then((res) => {
+        setLoading(false);
+        setButtonSuccess(true);
 
-    const successMessage = rememberMe
-      ? "Signed in & remembered. Welcome back to Relayo."
-      : "Signed in successfully. Welcome back to Relayo.";
+        const successMessage = rememberMe
+          ? "Signed in & remembered. Welcome back to Relayo."
+          : "Signed in successfully. Welcome back to Relayo.";
 
-    setSuccess(successMessage);
+        setSuccess(successMessage);
 
-    localStorage.setItem("token", res.data.token);
+        localStorage.setItem("token", res.data.token);
 
-    setTimeout(() => {
-      setButtonSuccess(false);
-      navigate("/chat-list");
-    }, BUTTON_SUCCESS_DURATION);
-  })
-  .catch((err) => {
-    setLoading(false);
-    setError(err.response?.data?.message || "Login failed");
-  });
+        setTimeout(() => {
+          setButtonSuccess(false);
+          navigate("/chat/1");
+        }, BUTTON_SUCCESS_DURATION);
+      })
+      .catch((err) => {
+        setLoading(false);
+        setError(err.response?.data?.message || "Login failed");
+      });
   }, [validateForm, rememberMe]);
 
   // Render alert message
