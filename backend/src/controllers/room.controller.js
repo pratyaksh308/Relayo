@@ -97,3 +97,53 @@ export const createDirectRoom = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const createDirectRoomByUsername = async (req, res) => {
+  try {
+    const { username } = req.body;
+    const currentUserId = req.user._id;
+
+    if (!username) {
+      return res.status(400).json({
+        message: "Username is required",
+      });
+    }
+
+    const targetUser = await User.findOne({ username });
+
+    if (!targetUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (targetUser._id.toString() === currentUserId.toString()) {
+      return res.status(400).json({
+        message: "You cannot start a chat with yourself",
+      });
+    }
+
+    // Check if room already exists
+    const existingRoom = await Room.findOne({
+      isGroup: false,
+      participants: { $all: [currentUserId, targetUser._id] },
+    });
+
+    if (existingRoom) {
+      return res.status(200).json(existingRoom);
+    }
+
+    // Create new room
+    const room = await Room.create({
+      isGroup: false,
+      participants: [currentUserId, targetUser._id],
+    });
+
+    res.status(201).json(room);
+  } catch (error) {
+    console.error("Create direct room error:", error);
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};

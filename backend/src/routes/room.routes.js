@@ -1,5 +1,5 @@
 import express from "express";
-import { createRoom, getMyRooms, createDirectRoom } from "../controllers/room.controller.js";
+import { createRoom, getMyRooms, createDirectRoom, createDirectRoomByUsername } from "../controllers/room.controller.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 
 const router = express.Router();
@@ -11,5 +11,6 @@ router.post("/", authMiddleware, createRoom);
 router.get("/my", authMiddleware, getMyRooms);
 
 router.post("/direct", authMiddleware, createDirectRoom);
+router.post("/direct/username", authMiddleware, createDirectRoomByUsername);
 
 export default router;
