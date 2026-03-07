@@ -13,6 +13,7 @@ const JWT_EXPIRES_IN = "7d";
 const getUserResponse = (user) => ({
   id: user._id,
   name: user.name,
+  username: user.username,
   email: user.email,
 });
 
@@ -22,27 +23,38 @@ const hashResetToken = (token) =>
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
     // Validate input
-    if (!name || !email || !password) {
+    if (!name || !username || !email || !password) {
       return res.status(400).json({
         message: "All fields are required",
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if email already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
       return res.status(400).json({
-        message: "User already exists",
+        message: "Email already registered",
       });
     }
 
-    // Hash password and create user
+    // Check if username already exists
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({
+        message: "Username already taken",
+      });
+    }
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
+
+    // Create user
     const user = await User.create({
       name,
+      username,
       email,
       password: hashedPassword,
     });
@@ -119,8 +131,9 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    // Generate and hash reset token
+    // Generate reset token
     const resetToken = crypto.randomBytes(RESET_TOKEN_BYTES).toString("hex");
+
     user.resetPasswordToken = hashResetToken(resetToken);
     user.resetPasswordExpires = Date.now() + RESET_TOKEN_EXPIRY_MS;
 
@@ -149,6 +162,7 @@ export const resetPassword = async (req, res) => {
     }
 
     const hashedToken = hashResetToken(token);
+
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
@@ -160,7 +174,6 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // Update password and clear reset fields
     user.password = await bcrypt.hash(password, BCRYPT_ROUNDS);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
