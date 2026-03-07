@@ -11,6 +11,7 @@ const MIN_PASSWORD_LENGTH = 6;
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,52 +23,63 @@ const RegisterPage = () => {
   const passwordRef = useRef(null);
 
   const handleSubmit = useCallback(
-  async (event) => {
-    event.preventDefault();
-    setError('');
-    setSuccess('');
+    async (event) => {
+      event.preventDefault();
+      setError('');
+      setSuccess('');
 
-    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError('Please fill in all fields.');
-      return;
-    }
+      if (!name.trim() || !username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+        setError('Please fill in all fields.');
+        return;
+      }
 
-    if (!EMAIL_REGEX.test(email)) {
-      setError('Enter a valid email address.');
-      return;
-    }
+      const usernameRegex = /^[a-z0-9_]+$/;
+      if (username.length < 3 || username.length > 20) {
+        setError('Username must be between 3 and 20 characters.');
+        return;
+      }
+      if (!usernameRegex.test(username)) {
+        setError('Username can only contain lowercase letters, numbers, and underscores.');
+        return;
+      }
 
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
-      return;
-    }
+      if (!EMAIL_REGEX.test(email)) {
+        setError('Enter a valid email address.');
+        return;
+      }
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
+      if (password.length < MIN_PASSWORD_LENGTH) {
+        setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+        return;
+      }
 
-    try {
-      const res = await registerUser({
-        name,
-        email,
-        password,
-      });
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
 
-      setSuccess('Account created successfully.');
+      try {
+        const res = await registerUser({
+          name,
+          username,
+          email,
+          password,
+        });
 
-      console.log('Register response:', res.data);
+        setSuccess('Account created successfully.');
 
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
+        console.log('Register response:', res.data);
 
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
-    }
-  },
-  [name, email, password, confirmPassword, navigate]
-);
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+
+      } catch (err) {
+        setError(err.response?.data?.message || 'Registration failed');
+      }
+    },
+    [name, email, password, confirmPassword, navigate]
+  );
 
   const togglePasswordVisibility = useCallback(() => {
     const currentPos = passwordCaretPos;
@@ -125,6 +137,20 @@ const RegisterPage = () => {
             </div>
 
             <div className="relayo-field">
+              <label className="relayo-label" htmlFor="register-username">
+                Username
+              </label>
+              <input
+                id="register-username"
+                type="text"
+                className="relayo-input"
+                placeholder="lowercase_only123"
+                value={username}
+                onChange={(event) => setUsername(event.target.value.toLowerCase())}
+              />
+            </div>
+
+            <div className="relayo-field">
               <label className="relayo-label" htmlFor="register-email">
                 Email
               </label>
@@ -146,33 +172,33 @@ const RegisterPage = () => {
                 <label className="relayo-label" htmlFor="register-password">
                   Password
                 </label>
-              <div className="password-box">
-                <input
-                  id="register-password"
-                  ref={passwordRef}
-                  type={showPassword ? 'text' : 'password'}
-                  className="relayo-input"
-                  placeholder="********"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  onSelect={(event) => setPasswordCaretPos(event.target.selectionStart)}
-                />
-                <span
-                  className="eye-icon"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={togglePasswordVisibility}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </span>
-              </div>
+                <div className="password-box">
+                  <input
+                    id="register-password"
+                    ref={passwordRef}
+                    type={showPassword ? 'text' : 'password'}
+                    className="relayo-input"
+                    placeholder="********"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    onSelect={(event) => setPasswordCaretPos(event.target.selectionStart)}
+                  />
+                  <span
+                    className="eye-icon"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={togglePasswordVisibility}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </span>
+                </div>
               </div>
 
               <div className="relayo-field">
                 <label className="relayo-label" htmlFor="register-confirm-password">
-                Confirm password
+                  Confirm password
                 </label>
                 <input
                   id="register-confirm-password"

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { searchUsers } from "../../api/user.api";
 import { createDirectRoomByUsername } from "../../api/room.api";
+import "../../styles/new-chat-modal.css";
 
 export default function NewChatModal({ isOpen, onClose, onRoomCreated }) {
   const [searchTerm, setSearchTerm] = useState("");
