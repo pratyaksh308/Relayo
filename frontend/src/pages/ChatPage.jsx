@@ -1,26 +1,40 @@
 import Sidebar from "../components/chat/Sidebar";
 import ChatArea from "../components/chat/ChatArea";
 import RightPanel from "../components/chat/RightPanel";
+import useConversations from "../hooks/useConversations";
 
 export default function ChatPage() {
-    const dummyConversation = null;
+
+    const {
+        conversations,
+        selectedConversation,
+        selectedConversationId,
+        handleSendMessage,
+        handleSelectConversation
+    } = useConversations();
+
+    if (!selectedConversation) {
+        return <div>Loading chats...</div>;
+    }
 
     return (
         <div className="app-container">
+
             <Sidebar
-                conversations={[]}
-                selectedConversationId={null}
-                onSelectConversation={() => { }}
+                conversations={conversations}
+                selectedConversationId={selectedConversationId}
+                onSelectConversation={handleSelectConversation}
             />
 
             <ChatArea
-                conversation={dummyConversation}
-                onSendMessage={() => { }}
+                conversation={selectedConversation}
+                onSendMessage={handleSendMessage}
             />
 
             <RightPanel
-                conversation={dummyConversation}
+                conversation={selectedConversation}
             />
+
         </div>
     );
 }
