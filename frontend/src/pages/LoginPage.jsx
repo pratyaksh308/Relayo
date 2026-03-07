@@ -97,6 +97,7 @@ const LoginPage = () => {
         setSuccess(successMessage);
 
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userId", res.data.user._id);
 
         setTimeout(() => {
           setButtonSuccess(false);
