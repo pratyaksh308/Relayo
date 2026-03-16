@@ -4,6 +4,34 @@ import { getRooms } from "../api/room.api";
 import { getMessagesByRoom, sendMessage } from "../api/message.api";
 import { io } from "socket.io-client";
 
+function generateAvatarStats(name) {
+    if (!name || name === "You") {
+        return { initials: "U", color: "var(--primary-color)" };
+    }
+    
+    // Generate initials (up to 2 characters)
+    const parts = name.trim().split(/\s+/);
+    let initials = "U";
+    if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    } else if (parts[0].length >= 2) {
+        initials = (parts[0][0] + parts[0][1]).toUpperCase();
+    } else {
+        initials = parts[0][0].toUpperCase();
+    }
+
+    // Generate a consistent color based on the name string (hash)
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    // Convert to HSL with good saturation and lightness for white text
+    const hue = hash % 360;
+    const color = `hsl(${hue > 0 ? hue : -hue}, 65%, 45%)`;
+
+    return { initials, color };
+}
+
 export default function useConversations() {
   const { chatId } = useParams();
   const navigate = useNavigate();
@@ -37,7 +65,8 @@ export default function useConversations() {
               type: msgType,
               sender: msg.sender?.name || msg.sender?.username || (msgType === "outgoing" ? "You" : "User"),
               time: new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-              avatar: msg.sender?.avatar || "https://picsum.photos/seed/user/100",
+              createdAt: msg.createdAt,
+              avatar: msg.sender?.avatar || "",
               text: msg.text,
             };
 
@@ -96,22 +125,29 @@ export default function useConversations() {
         return pIdStr !== String(currentUserId);
       });
 
-      if (otherParticipant) {
-        chatName = otherParticipant.name || otherParticipant.username;
-        if (otherParticipant.avatar) {
-          chatAvatar = otherParticipant.avatar;
-          isInitials = false;
+        if (otherParticipant) {
+          chatName = otherParticipant.name || otherParticipant.username;
+          if (otherParticipant.avatar) {
+            chatAvatar = otherParticipant.avatar;
+            isInitials = false;
+          } else {
+            const stats = generateAvatarStats(chatName);
+            chatAvatar = stats.initials;
+            color = stats.color;
+          }
         } else {
-          chatAvatar = chatName ? chatName.charAt(0).toUpperCase() : "U";
+          chatName = "Direct Chat";
         }
+      } else if (!chatName) {
+        chatName = "Group Chat";
       } else {
-        chatName = "Direct Chat";
+        // Group chat without custom avatar
+        const stats = generateAvatarStats(chatName);
+        chatAvatar = stats.initials;
+        color = stats.color;
       }
-    } else if (!chatName) {
-      chatName = "Group Chat";
-    }
-
-    return {
+  
+      return {
       id: room._id,
       name: chatName,
       members: room.participants?.length || 0,
@@ -191,7 +227,8 @@ export default function useConversations() {
             hour: "2-digit",
             minute: "2-digit",
           }),
-          avatar: m.sender?.avatar || "https://picsum.photos/seed/user/100",
+          createdAt: m.createdAt,
+          avatar: m.sender?.avatar || "",
           text: m.text,
         };
       });
@@ -237,7 +274,8 @@ export default function useConversations() {
           hour: "2-digit",
           minute: "2-digit",
         }),
-        avatar: "https://picsum.photos/seed/user/100",
+        createdAt: new Date().toISOString(),
+        avatar: "",
         text: message.text
       };
 

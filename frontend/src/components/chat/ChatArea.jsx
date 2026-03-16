@@ -1,15 +1,39 @@
 import React from 'react';
 import { Search, MoreVertical, Paperclip, Smile, Mic, Send, FileText, CheckCheck, Lock, ChevronDown } from 'lucide-react';
 
-function MessageBubble({ message }) {
+function MessageBubble({ message, isGrouped }) {
     return (
-        <div className={`message-group ${message.type}`}>
-            <div className="message-meta">
-                <span className="message-sender">{message.sender}</span>
-                <span className="message-time">{message.time}</span>
-            </div>
+        <div className={`message-group ${message.type} ${isGrouped ? 'grouped' : ''}`}>
+            {!isGrouped && (
+                <div className="message-meta">
+                    <span className="message-sender">{message.sender}</span>
+                    <span className="message-time">{message.time}</span>
+                </div>
+            )}
             <div className="message-content-wrapper">
-                <img src={message.avatar} alt={message.sender} className="avatar message-avatar" referrerPolicy="no-referrer" />
+                {isGrouped ? (
+                    <div className="avatar message-avatar" style={{ visibility: 'hidden', width: '32px', height: '32px' }} />
+                ) : message.avatar ? (
+                    <img src={message.avatar} alt={message.sender} className="avatar message-avatar" referrerPolicy="no-referrer" />
+                ) : (() => {
+                    const stats = generateAvatarStats(message.sender);
+                    return (
+                        <div className="avatar message-avatar" style={{ 
+                            width: '32px', 
+                            height: '32px', 
+                            borderRadius: '50%', 
+                            backgroundColor: stats.color, 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            color: '#fff',
+                            fontSize: '14px',
+                            fontWeight: '600'
+                        }}>
+                            {stats.initials}
+                        </div>
+                    );
+                })()}
 
                 {message.attachment ? (
                     <div className="message-content-stack">
@@ -39,6 +63,47 @@ function MessageBubble({ message }) {
             )}
         </div>
     );
+}
+
+export function generateAvatarStats(name) {
+    if (!name || name === "You") {
+        return { initials: "U", color: "var(--primary-color)" };
+    }
+    
+    const parts = name.trim().split(/\s+/);
+    let initials = "U";
+    if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    } else if (parts[0].length >= 2) {
+        initials = (parts[0][0] + parts[0][1]).toUpperCase();
+    } else {
+        initials = parts[0][0].toUpperCase();
+    }
+
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = hash % 360;
+    const color = `hsl(${hue > 0 ? hue : -hue}, 65%, 45%)`;
+
+    return { initials, color };
+}
+
+function formatDateSeparator(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+        return "Today";
+    } else if (date.toDateString() === yesterday.toDateString()) {
+        return "Yesterday";
+    } else {
+        return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
 }
 
 export default function ChatArea({ conversation, onSendMessage }) {
@@ -115,6 +180,7 @@ export default function ChatArea({ conversation, onSendMessage }) {
             type: 'outgoing',
             sender: 'User',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            createdAt: new Date().toISOString(),
             avatar: '',
             text: inputValue
         };
@@ -175,12 +241,34 @@ export default function ChatArea({ conversation, onSendMessage }) {
                     </div>
                 ) : (
                     <>
-                        <div className="date-divider">
-                            <span className="date-badge">Today</span>
-                        </div>
-                        {conversation.messages.map((msg) => (
-                            <MessageBubble key={msg.id} message={msg} />
-                        ))}
+                        {conversation.messages.map((msg, index) => {
+                            const prevMsg = conversation.messages[index - 1];
+                            
+                            let isSameSender = false;
+                            if (prevMsg && prevMsg.sender === msg.sender && prevMsg.type === msg.type) {
+                                const currentMsgTime = new Date(msg.createdAt).getTime();
+                                const prevMsgTime = new Date(prevMsg.createdAt).getTime();
+                                // Group messages only if they are within 5 minutes (300,000 ms) of each other
+                                if (currentMsgTime - prevMsgTime < 300000) {
+                                    isSameSender = true;
+                                }
+                            }
+                            
+                            const currentDate = new Date(msg.createdAt).toDateString();
+                            const prevDate = prevMsg ? new Date(prevMsg.createdAt).toDateString() : null;
+                            const showDateSeparator = currentDate !== prevDate;
+
+                            return (
+                                <React.Fragment key={msg.id}>
+                                    {showDateSeparator && (
+                                        <div className="date-separator">
+                                            {formatDateSeparator(msg.createdAt || new Date())}
+                                        </div>
+                                    )}
+                                    <MessageBubble message={msg} isGrouped={isSameSender && !showDateSeparator} />
+                                </React.Fragment>
+                            );
+                        })}
                     </>
                 )}
                 <div ref={bottomRef} />

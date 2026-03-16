@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Search, Edit, Settings } from "lucide-react";
 import NewChatModal from "./NewChatModal";
+import { generateAvatarStats } from "./ChatArea";
 
 export default function Sidebar({ conversations, selectedConversationId, onSelectConversation, onRoomCreated }) {
 
@@ -106,7 +107,15 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
                                 {conv.isInitials ? (
                                     <div
                                         className="avatar"
-                                        style={{ backgroundColor: conv.color }}
+                                        style={{ 
+                                            backgroundColor: conv.color,
+                                            color: '#fff',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '14px',
+                                            fontWeight: '600'
+                                        }}
                                     >
                                         {conv.avatar}
                                     </div>
@@ -164,9 +173,22 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
                 <div className="user-profile">
                     {userAvatar ? (
                         <img src={userAvatar} alt={userName} className="avatar" referrerPolicy="no-referrer" />
-                    ) : (
-                        <div className="avatar">{userName.charAt(0).toUpperCase()}</div>
-                    )}
+                    ) : (() => {
+                        const stats = generateAvatarStats(userName);
+                        return (
+                            <div className="avatar" style={{ 
+                                backgroundColor: stats.color,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            }}>
+                                {stats.initials}
+                            </div>
+                        );
+                    })()}
                     <div className="user-info">
                         <span className="user-name">{userName}</span>
                         <span className="user-status">Online</span>

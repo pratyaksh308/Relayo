@@ -1,5 +1,6 @@
 import React from 'react';
 import { BellOff, Search, MoreHorizontal } from 'lucide-react';
+import { generateAvatarStats } from './ChatArea';
 
 export default function RightPanel({ conversation }) {
     if (!conversation || !conversation.id) {
@@ -7,9 +8,7 @@ export default function RightPanel({ conversation }) {
     }
 
     const currentUserId = localStorage.getItem("userId");
-    const otherMembers = conversation.participants?.filter(
-        p => String(p._id || p.id || p) !== String(currentUserId)
-    ) || [];
+    const membersList = conversation.participants || [];
 
     return (
         <div className="right-panel">
@@ -66,21 +65,29 @@ export default function RightPanel({ conversation }) {
                     <span className="section-title">MEMBERS ({conversation.members || 0})</span>
                 </div>
                 <div className="member-list">
-                    {otherMembers.length > 0 ? (
-                        otherMembers.map((member, idx) => (
-                            <div key={idx} className="user-profile" style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
-                                {member.avatar ? (
-                                    <img src={member.avatar} alt={member.name || member.username} className="avatar" style={{width: '32px', height: '32px', borderRadius: '50%'}} referrerPolicy="no-referrer" />
-                                ) : (
-                                    <div className="avatar" style={{width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--primary-color, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                                        {(member.name || member.username || "U").charAt(0).toUpperCase()}
+                    {membersList.length > 0 ? (
+                        membersList.map((member, idx) => {
+                            const isMe = String(member._id || member.id || member) === String(currentUserId);
+                            const actualName = member.name || member.username;
+                            const displayName = isMe ? "You" : actualName;
+                            // Pass the actual name to the color generator to get real initials and consistent color
+                            const stats = generateAvatarStats(actualName);
+
+                            return (
+                                <div key={idx} className="user-profile" style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
+                                    {member.avatar ? (
+                                        <img src={member.avatar} alt={displayName} className="avatar" style={{width: '32px', height: '32px', borderRadius: '50%'}} referrerPolicy="no-referrer" />
+                                    ) : (
+                                        <div className="avatar" style={{width: '32px', height: '32px', borderRadius: '50%', backgroundColor: stats.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '14px', fontWeight: '600' }}>
+                                            {stats.initials}
+                                        </div>
+                                    )}
+                                    <div className="user-info">
+                                        <span className="user-name" style={{ fontSize: '14px', color: 'var(--text-primary, #fff)' }}>{displayName}</span>
                                     </div>
-                                )}
-                                <div className="user-info">
-                                    <span className="user-name" style={{ fontSize: '14px', color: 'var(--text-primary, #fff)' }}>{member.name || member.username}</span>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     ) : (
                         <div className="pinned-content" style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
                             No members available.
