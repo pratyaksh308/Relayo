@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, MoreVertical, Paperclip, Smile, Mic, Send, FileText, CheckCheck, Lock } from 'lucide-react';
+import { Search, MoreVertical, Paperclip, Smile, Mic, Send, FileText, CheckCheck, Lock, ChevronDown } from 'lucide-react';
 
 function MessageBubble({ message }) {
     return (
@@ -43,13 +43,69 @@ function MessageBubble({ message }) {
 
 export default function ChatArea({ conversation, onSendMessage }) {
     const [inputValue, setInputValue] = React.useState('');
+    const [showScrollButton, setShowScrollButton] = React.useState(false);
+    const [newMessageCount, setNewMessageCount] = React.useState(0);
+
     const messageListRef = React.useRef(null);
+    const bottomRef = React.useRef(null);
+    const prevConversationIdRef = React.useRef(null);
+    const prevMessageCountRef = React.useRef(0);
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        // Check if user is near bottom
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 120;
+        
+        if (isNearBottom) {
+            setShowScrollButton(false);
+            setNewMessageCount(0);
+        } else {
+            setShowScrollButton(true);
+        }
+    };
 
     React.useEffect(() => {
-        if (messageListRef.current) {
-            messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+        const currentConvId = conversation?.id;
+        const currentMsgsLength = conversation?.messages?.length || 0;
+
+        if (prevConversationIdRef.current !== currentConvId) {
+            // Selected a different chat, reset states and snap safely
+            prevConversationIdRef.current = currentConvId;
+            prevMessageCountRef.current = currentMsgsLength;
+            setShowScrollButton(false);
+            setNewMessageCount(0);
+
+            if (bottomRef.current) {
+                bottomRef.current.scrollIntoView({ behavior: 'auto' });
+            }
+            return;
         }
-    }, [conversation?.messages]);
+
+        const addedMessages = currentMsgsLength - prevMessageCountRef.current;
+
+        if (addedMessages > 0) {
+            if (!showScrollButton) {
+                // If we were near the bottom before, smoothly auto-scroll down
+                if (bottomRef.current) {
+                    bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else {
+                // If we were reading history, increment badge and keep user in place
+                setNewMessageCount((prev) => prev + addedMessages);
+                setShowScrollButton(true);
+            }
+        }
+
+        prevMessageCountRef.current = currentMsgsLength;
+    }, [conversation?.messages, conversation?.id, showScrollButton]);
+
+    const scrollToBottom = () => {
+        if (bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+        setNewMessageCount(0);
+        setShowScrollButton(false);
+    };
 
     const handleSend = () => {
         if (!inputValue.trim() || !conversation) return;
@@ -112,7 +168,7 @@ export default function ChatArea({ conversation, onSendMessage }) {
                 </div>
             </div>
 
-            <div className="message-list" ref={messageListRef}>
+            <div className="message-list" ref={messageListRef} onScroll={handleScroll}>
                 {(!conversation.messages || conversation.messages.length === 0) ? (
                     <div style={{ display: 'flex', justifyContent: 'center', color: 'var(--text-secondary)', padding: '20px' }}>
                         No messages yet.
@@ -127,7 +183,17 @@ export default function ChatArea({ conversation, onSendMessage }) {
                         ))}
                     </>
                 )}
+                <div ref={bottomRef} />
             </div>
+
+            {showScrollButton && (
+                <button className="scroll-to-bottom" onClick={scrollToBottom}>
+                    <ChevronDown size={24} strokeWidth={2.5} />
+                    {newMessageCount > 0 && (
+                        <span className="unread-badge-float">{newMessageCount}</span>
+                    )}
+                </button>
+            )}
 
             <div className="chat-input-container">
                 <div className="chat-input-wrapper">

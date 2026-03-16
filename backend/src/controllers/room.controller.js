@@ -75,22 +75,25 @@ export const createDirectRoom = async (req, res) => {
       return res.status(400).json({ message: "Cannot create chat with yourself" });
     }
 
-    // First try to find an existing direct room
-    let room = await Room.findOne({
-      isGroup: false,
-      participants: { $all: [currentUserId, targetUser._id], $size: 2 }
-    });
+    let room = await Room.findOneAndUpdate(
+      {
+        isGroup: false,
+        participants: { $all: [currentUserId, targetUser._id], $size: 2 }
+      },
+      {
+        $setOnInsert: {
+          isGroup: false,
+          participants: [currentUserId, targetUser._id]
+        }
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true
+      }
+    );
 
     let statusCode = 200;
-    
-    // If it doesn't exist, create it
-    if (!room) {
-      room = await Room.create({
-        isGroup: false,
-        participants: [currentUserId, targetUser._id],
-      });
-      statusCode = 201;
-    }
 
     // Populate data to return
     room = await Room.findById(room._id)
@@ -133,22 +136,25 @@ export const createDirectRoomByUsername = async (req, res) => {
       });
     }
 
-    // First try to find an existing direct room
-    let room = await Room.findOne({
-      isGroup: false,
-      participants: { $all: [currentUserId, targetUser._id], $size: 2 }
-    });
+    let room = await Room.findOneAndUpdate(
+      {
+        isGroup: false,
+        participants: { $all: [currentUserId, targetUser._id], $size: 2 }
+      },
+      {
+        $setOnInsert: {
+          isGroup: false,
+          participants: [currentUserId, targetUser._id]
+        }
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true
+      }
+    );
 
     let statusCode = 200;
-    
-    // If it doesn't exist, create it
-    if (!room) {
-      room = await Room.create({
-        isGroup: false,
-        participants: [currentUserId, targetUser._id],
-      });
-      statusCode = 201;
-    }
 
     // Populate data to return
     room = await Room.findById(room._id)

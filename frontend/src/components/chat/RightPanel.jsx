@@ -6,6 +6,11 @@ export default function RightPanel({ conversation }) {
         return null; // Don't render panel if no active conversation
     }
 
+    const currentUserId = localStorage.getItem("userId");
+    const otherMembers = conversation.participants?.filter(
+        p => String(p._id || p.id || p) !== String(currentUserId)
+    ) || [];
+
     return (
         <div className="right-panel">
             <div className="panel-header">
@@ -61,10 +66,26 @@ export default function RightPanel({ conversation }) {
                     <span className="section-title">MEMBERS ({conversation.members || 0})</span>
                 </div>
                 <div className="member-list">
-                    {/* Add dynamic members mapping here when backend is ready */}
-                    <div className="pinned-content" style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
-                        No members available.
-                    </div>
+                    {otherMembers.length > 0 ? (
+                        otherMembers.map((member, idx) => (
+                            <div key={idx} className="user-profile" style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
+                                {member.avatar ? (
+                                    <img src={member.avatar} alt={member.name || member.username} className="avatar" style={{width: '32px', height: '32px', borderRadius: '50%'}} referrerPolicy="no-referrer" />
+                                ) : (
+                                    <div className="avatar" style={{width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--primary-color, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                                        {(member.name || member.username || "U").charAt(0).toUpperCase()}
+                                    </div>
+                                )}
+                                <div className="user-info">
+                                    <span className="user-name" style={{ fontSize: '14px', color: 'var(--text-primary, #fff)' }}>{member.name || member.username}</span>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="pinned-content" style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+                            No members available.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

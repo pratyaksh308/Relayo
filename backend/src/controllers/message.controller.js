@@ -17,11 +17,20 @@ export const sendMessage = async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
-    const message = await Message.create({
+    if (!room.participants.includes(senderId)) {
+      return res.status(403).json({
+        message: "You are not a participant of this room"
+      });
+    }
+
+    let message = await Message.create({
       room: roomId,
       sender: senderId,
       text,
     });
+
+    // Populate the sender so the frontend socket listener has full user details
+    message = await message.populate("sender", "name username email avatar");
 
     // update room's lastMessage pointer so list preview works
     await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
@@ -43,6 +52,16 @@ export const sendMessage = async (req, res) => {
 export const getMessagesByRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
+    const userId = req.user.id;
+
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    if (!room.participants.includes(userId)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
 
     const messages = await Message.find({ room: roomId })
       .populate("sender", "name email")

@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getRooms } from "../api/room.api";
 import { getMessagesByRoom, sendMessage } from "../api/message.api";
+import { io } from "socket.io-client";
 
 export default function useConversations() {
   const { chatId } = useParams();
@@ -9,6 +10,59 @@ export default function useConversations() {
 
   const [conversations, setConversations] = useState(null);
   const [selectedConversationId, setSelectedConversationId] = useState(null);
+  const socketRef = useRef(null);
+
+  // 1. Establish Socket Connection and Listen for Messages
+  useEffect(() => {
+    // Determine backend URL (fallback to localhost:5000 if env not set)
+    const backendUrl = "http://localhost:5000";
+    socketRef.current = io(backendUrl);
+
+    socketRef.current.on("newMessage", (msg) => {
+      setConversations(prev => {
+        if (!prev) return prev;
+        
+        return prev.map(conv => {
+          if (String(conv.id) === String(msg.room)) {
+            // Check for duplicates (local sent messages already have the DB _id)
+            const exists = (conv.messages || []).some(m => String(m.id) === String(msg._id));
+            if (exists) return conv;
+
+            const currentUserId = localStorage.getItem("userId");
+            const senderIdStr = String(msg.sender?._id || msg.sender?.id || msg.sender);
+            const msgType = senderIdStr === String(currentUserId) ? "outgoing" : "incoming";
+
+            const newMsgFormatted = {
+              id: msg._id,
+              type: msgType,
+              sender: msg.sender?.name || msg.sender?.username || (msgType === "outgoing" ? "You" : "User"),
+              time: new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              avatar: msg.sender?.avatar || "https://picsum.photos/seed/user/100",
+              text: msg.text,
+            };
+
+            return { 
+              ...conv, 
+              messages: [...(conv.messages || []), newMsgFormatted],
+              lastMessage: msg 
+            };
+          }
+          return conv;
+        });
+      });
+    });
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+    };
+  }, []);
+
+  // 2. Join Room when selected
+  useEffect(() => {
+    if (socketRef.current && selectedConversationId) {
+      socketRef.current.emit("joinRoom", selectedConversationId);
+    }
+  }, [selectedConversationId]);
 
   const selectedConversation = conversations?.find(
     (c) => String(c.id) === String(selectedConversationId)
@@ -65,6 +119,8 @@ export default function useConversations() {
       avatar: chatAvatar,
       isInitials,
       color,
+      participants: room.participants || [],
+      lastMessage: room.lastMessage || null,
       messages: []
     };
   }, []);
@@ -187,11 +243,14 @@ export default function useConversations() {
 
       setConversations((prev) => {
         if (!prev) return prev;
-        return prev.map((c) =>
-          String(c.id) === String(conversationId)
-            ? { ...c, messages: [...(c.messages || []), newMsg] }
-            : c
-        );
+        return prev.map((c) => {
+          if (String(c.id) === String(conversationId)) {
+            const exists = (c.messages || []).some(m => String(m.id) === String(newMsg.id));
+            if (exists) return c;
+            return { ...c, messages: [...(c.messages || []), newMsg] };
+          }
+          return c;
+        });
       });
     } catch (err) {
       console.error("Send message failed", err);
