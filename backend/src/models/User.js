@@ -8,6 +8,21 @@ const userSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       trim: true,
     },
+
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      minlength: [3, "Username must be at least 3 characters"],
+      maxlength: [20, "Username cannot exceed 20 characters"],
+      match: [
+        /^[a-z0-9_]+$/,
+        "Username can only contain lowercase letters, numbers, and underscores",
+      ],
+    },
+
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -15,6 +30,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     avatar: {
       type: String,
       default: "",
@@ -31,6 +47,7 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: {
       type: String,
     },
+
     resetPasswordExpires: {
       type: Date,
     },

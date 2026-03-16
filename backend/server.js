@@ -33,6 +33,15 @@ io.on("connection", (socket) => {
     console.log(`📥 Socket ${socket.id} joined room ${roomId}`);
   });
 
+  // Typing indicators
+  socket.on("typing", ({ roomId, userId, userName }) => {
+    socket.to(roomId).emit("typing", { roomId, userId, userName });
+  });
+
+  socket.on("stopTyping", ({ roomId, userId }) => {
+    socket.to(roomId).emit("stopTyping", { roomId, userId });
+  });
+
   socket.on("disconnect", () => {
     console.log("❌ User disconnected:", socket.id);
   });

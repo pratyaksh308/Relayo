@@ -97,11 +97,13 @@ const LoginPage = () => {
         setSuccess(successMessage);
 
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("userId", res.data.user._id);
+        localStorage.setItem("userId", res.data.user._id || res.data.user.id);
+        localStorage.setItem("userName", res.data.user.name || res.data.user.username || "User");
+        localStorage.setItem("userAvatar", res.data.user.avatar || "");
 
         setTimeout(() => {
           setButtonSuccess(false);
-          navigate("/chat/1");
+          navigate("/chat");
         }, BUTTON_SUCCESS_DURATION);
       })
       .catch((err) => {

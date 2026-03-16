@@ -1,7 +1,13 @@
-import React from 'react';
-import { Search, Edit, Settings } from 'lucide-react';
+import React, { useState } from "react";
+import { Search, Edit, Settings } from "lucide-react";
+import NewChatModal from "./NewChatModal";
+import { generateAvatarStats } from "./ChatArea";
 
-export default function Sidebar({ conversations, selectedConversationId, onSelectConversation }) {
+export default function Sidebar({ conversations, selectedConversationId, onSelectConversation, onRoomCreated }) {
+
+    const [showNewChat, setShowNewChat] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+
     const getPreviewText = (lastMessage) => {
         if (!lastMessage) return "No messages yet";
 
@@ -9,7 +15,6 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
         if (typeof lastMessage.text === 'string') {
             text = lastMessage.text;
         } else if (React.isValidElement(lastMessage.text)) {
-            // Very basic extraction of children text if JSX
             const extractText = (element) => {
                 if (typeof element === 'string') return element;
                 if (Array.isArray(element)) return element.map(extractText).join(' ');
@@ -21,20 +26,49 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
             text = "Attachment...";
         }
 
-        const prefix = lastMessage.type === 'outgoing' ? "You: " : "";
+        const currentUserId = localStorage.getItem("userId");
+        let prefix = "";
+
+        if (lastMessage.sender) {
+            if (typeof lastMessage.sender === 'object') {
+                const senderId = lastMessage.sender._id || lastMessage.sender.id;
+                if (String(senderId) === String(currentUserId)) {
+                    prefix = "You: ";
+                } else {
+                    prefix = `${lastMessage.sender.name || lastMessage.sender.username || "User"}: `;
+                }
+            } else if (typeof lastMessage.sender === 'string') {
+                if (lastMessage.type === 'outgoing' || lastMessage.sender === 'You') {
+                     prefix = "You: ";
+                } else {
+                     prefix = `${lastMessage.sender}: `;
+                }
+            }
+        } else if (lastMessage.type === 'outgoing') {
+            prefix = "You: ";
+        }
+
         text = prefix + text;
 
         return text.length > 35 ? text.substring(0, 35) + "..." : text;
     };
 
+    const userName = localStorage.getItem("userName") || "User";
+    const userAvatar = localStorage.getItem("userAvatar");
+
     return (
         <div className="sidebar">
+
             <div className="sidebar-header">
                 <div className="brand">
                     <div className="brand-icon">R</div>
                     Relayo
                 </div>
-                <button className="icon-button">
+
+                <button
+                    className="icon-button"
+                    onClick={() => setShowNewChat(true)}
+                >
                     <Edit size={20} />
                 </button>
             </div>
@@ -42,63 +76,139 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
             <div className="search-container">
                 <div className="search-input-wrapper">
                     <Search className="search-icon" size={16} />
-                    <input type="text" className="search-input" placeholder="Search messages..." />
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="Search messages..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
             </div>
 
             <div className="conversation-list">
-                {conversations.map((conv) => {
-                    const lastMessage = conv.messages && conv.messages.length > 0
-                        ? conv.messages[conv.messages.length - 1]
-                        : null;
+                {conversations.filter(conv => conv.name.toLowerCase().includes(searchTerm.toLowerCase())).map((conv) => {
+
+                    const lastMessage =
+                        conv.messages && conv.messages.length > 0
+                            ? conv.messages[conv.messages.length - 1]
+                            : conv.lastMessage;
 
                     return (
                         <div
                             key={conv.id}
-                            className={`conversation-item ${conv.id === selectedConversationId ? 'active' : ''}`}
+                            className={`conversation-item ${
+                                conv.id === selectedConversationId ? "active" : ""
+                                }`}
                             onClick={() => onSelectConversation(conv.id)}
                         >
+
                             <div className="avatar-wrapper">
                                 {conv.isInitials ? (
-                                    <div className="avatar" style={{ backgroundColor: conv.color }}>
+                                    <div
+                                        className="avatar"
+                                        style={{ 
+                                            backgroundColor: conv.color,
+                                            color: '#fff',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '14px',
+                                            fontWeight: '600'
+                                        }}
+                                    >
                                         {conv.avatar}
                                     </div>
                                 ) : (
-                                    <img src={conv.avatar} alt={conv.name} className="avatar" referrerPolicy="no-referrer" />
+                                    <img
+                                        src={conv.avatar}
+                                        alt={conv.name}
+                                        className="avatar"
+                                        referrerPolicy="no-referrer"
+                                    />
                                 )}
-                                {conv.online && <div className="online-indicator" />}
+
+                                {conv.online && (
+                                    <div className="online-indicator" />
+                                )}
                             </div>
 
                             <div className="conversation-details">
+
                                 <div className="conversation-header">
-                                    <span className="conversation-name">{conv.name}</span>
-                                    {lastMessage && <span className="conversation-time">{lastMessage.time}</span>}
+                                    <span className="conversation-name">
+                                        {conv.name}
+                                    </span>
+
+                                    {lastMessage && (
+                                        <span className="conversation-time">
+                                            {lastMessage.time}
+                                        </span>
+                                    )}
                                 </div>
-                                <div className={`conversation-message ${conv.unread ? 'unread' : ''}`}>
+
+                                <div
+                                    className={`conversation-message ${
+                                        conv.unread ? "unread" : ""
+                                        }`}
+                                >
                                     {getPreviewText(lastMessage)}
                                 </div>
+
                             </div>
 
-                            {conv.unread ? (
-                                <div className="unread-badge">{conv.unread}</div>
-                            ) : null}
+                            {conv.unread && (
+                                <div className="unread-badge">
+                                    {conv.unread}
+                                </div>
+                            )}
+
                         </div>
                     );
                 })}
             </div>
 
             <div className="sidebar-footer">
+
                 <div className="user-profile">
-                    <div className="avatar">U</div>
+                    {userAvatar ? (
+                        <img src={userAvatar} alt={userName} className="avatar" referrerPolicy="no-referrer" />
+                    ) : (() => {
+                        const stats = generateAvatarStats(userName);
+                        return (
+                            <div className="avatar" style={{ 
+                                backgroundColor: stats.color,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            }}>
+                                {stats.initials}
+                            </div>
+                        );
+                    })()}
                     <div className="user-info">
-                        <span className="user-name">User</span>
+                        <span className="user-name">{userName}</span>
                         <span className="user-status">Online</span>
                     </div>
                 </div>
+
                 <button className="icon-button">
                     <Settings size={20} />
                 </button>
+
             </div>
+
+            {/* NEW CHAT MODAL */}
+
+            <NewChatModal
+                isOpen={showNewChat}
+                onClose={() => setShowNewChat(false)}
+                onRoomCreated={onRoomCreated}
+            />
+
         </div>
     );
 }
