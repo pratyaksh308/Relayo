@@ -13,6 +13,7 @@ export default function ChatPage() {
         selectedConversation,
         selectedConversationId,
         handleSendMessage,
+        handleTyping,
         handleSelectConversation,
         addConversation
     } = useConversations();
@@ -63,6 +64,7 @@ export default function ChatPage() {
                     <ChatArea
                         conversation={selectedConversation}
                         onSendMessage={handleSendMessage}
+                        onTyping={handleTyping}
                     />
                     <RightPanel
                         conversation={selectedConversation}

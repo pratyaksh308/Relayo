@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Search, Edit, Settings } from "lucide-react";
 import NewChatModal from "./NewChatModal";
+import { generateAvatarStats } from "./ChatArea";
 
 export default function Sidebar({ conversations, selectedConversationId, onSelectConversation, onRoomCreated }) {
 
     const [showNewChat, setShowNewChat] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const getPreviewText = (lastMessage) => {
         if (!lastMessage) return "No messages yet";
@@ -24,7 +26,28 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
             text = "Attachment...";
         }
 
-        const prefix = lastMessage.type === 'outgoing' ? "You: " : "";
+        const currentUserId = localStorage.getItem("userId");
+        let prefix = "";
+
+        if (lastMessage.sender) {
+            if (typeof lastMessage.sender === 'object') {
+                const senderId = lastMessage.sender._id || lastMessage.sender.id;
+                if (String(senderId) === String(currentUserId)) {
+                    prefix = "You: ";
+                } else {
+                    prefix = `${lastMessage.sender.name || lastMessage.sender.username || "User"}: `;
+                }
+            } else if (typeof lastMessage.sender === 'string') {
+                if (lastMessage.type === 'outgoing' || lastMessage.sender === 'You') {
+                     prefix = "You: ";
+                } else {
+                     prefix = `${lastMessage.sender}: `;
+                }
+            }
+        } else if (lastMessage.type === 'outgoing') {
+            prefix = "You: ";
+        }
+
         text = prefix + text;
 
         return text.length > 35 ? text.substring(0, 35) + "..." : text;
@@ -57,17 +80,19 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
                         type="text"
                         className="search-input"
                         placeholder="Search messages..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
             <div className="conversation-list">
-                {conversations.map((conv) => {
+                {conversations.filter(conv => conv.name.toLowerCase().includes(searchTerm.toLowerCase())).map((conv) => {
 
                     const lastMessage =
                         conv.messages && conv.messages.length > 0
                             ? conv.messages[conv.messages.length - 1]
-                            : null;
+                            : conv.lastMessage;
 
                     return (
                         <div
@@ -82,7 +107,15 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
                                 {conv.isInitials ? (
                                     <div
                                         className="avatar"
-                                        style={{ backgroundColor: conv.color }}
+                                        style={{ 
+                                            backgroundColor: conv.color,
+                                            color: '#fff',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '14px',
+                                            fontWeight: '600'
+                                        }}
                                     >
                                         {conv.avatar}
                                     </div>
@@ -140,9 +173,22 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
                 <div className="user-profile">
                     {userAvatar ? (
                         <img src={userAvatar} alt={userName} className="avatar" referrerPolicy="no-referrer" />
-                    ) : (
-                        <div className="avatar">{userName.charAt(0).toUpperCase()}</div>
-                    )}
+                    ) : (() => {
+                        const stats = generateAvatarStats(userName);
+                        return (
+                            <div className="avatar" style={{ 
+                                backgroundColor: stats.color,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            }}>
+                                {stats.initials}
+                            </div>
+                        );
+                    })()}
                     <div className="user-info">
                         <span className="user-name">{userName}</span>
                         <span className="user-status">Online</span>
