@@ -30,6 +30,9 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
         return text.length > 35 ? text.substring(0, 35) + "..." : text;
     };
 
+    const userName = localStorage.getItem("userName") || "User";
+    const userAvatar = localStorage.getItem("userAvatar");
+
     return (
         <div className="sidebar">
 
@@ -135,9 +138,13 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
             <div className="sidebar-footer">
 
                 <div className="user-profile">
-                    <div className="avatar">U</div>
+                    {userAvatar ? (
+                        <img src={userAvatar} alt={userName} className="avatar" referrerPolicy="no-referrer" />
+                    ) : (
+                        <div className="avatar">{userName.charAt(0).toUpperCase()}</div>
+                    )}
                     <div className="user-info">
-                        <span className="user-name">User</span>
+                        <span className="user-name">{userName}</span>
                         <span className="user-status">Online</span>
                     </div>
                 </div>

@@ -12,6 +12,7 @@ export const searchUsers = async (req, res) => {
 
     const users = await User.find({
       username: { $regex: username, $options: "i" },
+      _id: { $ne: req.user._id },
     }).select("name username avatar");
 
     res.status(200).json(users);
