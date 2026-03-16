@@ -106,7 +106,7 @@ function formatDateSeparator(dateString) {
     }
 }
 
-export default function ChatArea({ conversation, onSendMessage }) {
+export default function ChatArea({ conversation, onSendMessage, onTyping }) {
     const [inputValue, setInputValue] = React.useState('');
     const [showScrollButton, setShowScrollButton] = React.useState(false);
     const [newMessageCount, setNewMessageCount] = React.useState(0);
@@ -115,6 +115,7 @@ export default function ChatArea({ conversation, onSendMessage }) {
     const bottomRef = React.useRef(null);
     const prevConversationIdRef = React.useRef(null);
     const prevMessageCountRef = React.useRef(0);
+    const typingTimeoutRef = React.useRef(null);
 
     const handleScroll = (e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.target;
@@ -175,6 +176,9 @@ export default function ChatArea({ conversation, onSendMessage }) {
     const handleSend = () => {
         if (!inputValue.trim() || !conversation) return;
 
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        if (onTyping) onTyping(conversation.id, false);
+
         const newMessage = {
             id: Date.now(),
             type: 'outgoing',
@@ -187,6 +191,19 @@ export default function ChatArea({ conversation, onSendMessage }) {
 
         onSendMessage(conversation.id, newMessage);
         setInputValue('');
+    };
+
+    const handleInputChange = (e) => {
+        setInputValue(e.target.value);
+        
+        if (onTyping && conversation) {
+            onTyping(conversation.id, true);
+            
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = setTimeout(() => {
+                onTyping(conversation.id, false);
+            }, 2000);
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -216,7 +233,13 @@ export default function ChatArea({ conversation, onSendMessage }) {
                             <span className="chat-badge">PUBLIC</span>
                         </div>
                         <div className="chat-subtitle">
-                            {conversation.members || 0} members • {conversation.onlineCount || 0} online
+                            {(showScrollButton && conversation.typingUsers && conversation.typingUsers.length > 0) ? (
+                                <span style={{ color: 'var(--primary-color)', fontWeight: '500', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                                    {conversation.typingUsers.map(u => u.userName).join(', ')} typing...
+                                </span>
+                            ) : (
+                                <span>{conversation.members || 0} members • {conversation.onlineCount || 0} online</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -271,6 +294,18 @@ export default function ChatArea({ conversation, onSendMessage }) {
                         })}
                     </>
                 )}
+                
+                {(!showScrollButton && conversation.typingUsers && conversation.typingUsers.length > 0) && (
+                    <div className="typing-indicator-container" style={{ padding: '0 24px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                        <div className="typing-dots" style={{ display: 'flex', gap: '4px', backgroundColor: 'var(--bg-tertiary)', padding: '10px 14px', borderRadius: '16px', borderBottomLeftRadius: '4px' }}>
+                            <span style={{ width: '6px', height: '6px', backgroundColor: 'var(--text-secondary)', borderRadius: '50%', animation: 'typing 1.4s infinite ease-in-out both', animationDelay: '0s' }}></span>
+                            <span style={{ width: '6px', height: '6px', backgroundColor: 'var(--text-secondary)', borderRadius: '50%', animation: 'typing 1.4s infinite ease-in-out both', animationDelay: '0.2s' }}></span>
+                            <span style={{ width: '6px', height: '6px', backgroundColor: 'var(--text-secondary)', borderRadius: '50%', animation: 'typing 1.4s infinite ease-in-out both', animationDelay: '0.4s' }}></span>
+                        </div>
+                        {conversation.typingUsers.map(u => u.userName).join(', ')} {conversation.typingUsers.length > 1 ? 'are' : 'is'} typing...
+                    </div>
+                )}
+                
                 <div ref={bottomRef} />
             </div>
 
@@ -293,7 +328,7 @@ export default function ChatArea({ conversation, onSendMessage }) {
                         className="chat-input"
                         placeholder={`Type a message to ${conversation.name}...`}
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
+                        onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                     />
                     <button className="icon-button input-action-btn">

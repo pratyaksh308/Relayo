@@ -81,6 +81,36 @@ export default function useConversations() {
       });
     });
 
+    socketRef.current.on("typing", ({ roomId, userId, userName }) => {
+      setConversations(prev => {
+        if (!prev) return prev;
+        return prev.map(conv => {
+          if (String(conv.id) === String(roomId)) {
+            const typingUsers = conv.typingUsers || [];
+            if (!typingUsers.some(u => String(u.userId) === String(userId))) {
+              return { ...conv, typingUsers: [...typingUsers, { userId, userName }] };
+            }
+          }
+          return conv;
+        });
+      });
+    });
+
+    socketRef.current.on("stopTyping", ({ roomId, userId }) => {
+      setConversations(prev => {
+        if (!prev) return prev;
+        return prev.map(conv => {
+          if (String(conv.id) === String(roomId)) {
+            return {
+              ...conv,
+              typingUsers: (conv.typingUsers || []).filter(u => String(u.userId) !== String(userId))
+            };
+          }
+          return conv;
+        });
+      });
+    });
+
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
@@ -157,7 +187,8 @@ export default function useConversations() {
       color,
       participants: room.participants || [],
       lastMessage: room.lastMessage || null,
-      messages: []
+      messages: [],
+      typingUsers: []
     };
   }, []);
 
@@ -259,6 +290,18 @@ export default function useConversations() {
     }
   }, [chatId, fetchMessagesAndSelect, selectedConversationId, conversations, selectedConversation]);
 
+  const handleTyping = useCallback((conversationId, isTyping) => {
+    if (!socketRef.current) return;
+    const currentUserId = localStorage.getItem("userId");
+    const currentUserName = localStorage.getItem("userName");
+    
+    if (isTyping) {
+      socketRef.current.emit("typing", { roomId: conversationId, userId: currentUserId, userName: currentUserName });
+    } else {
+      socketRef.current.emit("stopTyping", { roomId: conversationId, userId: currentUserId });
+    }
+  }, []);
+
   const handleSendMessage = async (conversationId, message) => {
     try {
       const res = await sendMessage({
@@ -315,6 +358,7 @@ export default function useConversations() {
     selectedConversation,
     selectedConversationId,
     handleSendMessage,
+    handleTyping,
     handleSelectConversation,
     addConversation
   };
