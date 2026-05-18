@@ -43,7 +43,7 @@ export default function useConversations() {
   // 1. Establish Socket Connection and Listen for Messages
   useEffect(() => {
     // Determine backend URL (fallback to localhost:5000 if env not set)
-    const backendUrl = "http://localhost:5000";
+    const backendUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
     socketRef.current = io(backendUrl);
 
     socketRef.current.on("newMessage", (msg) => {
