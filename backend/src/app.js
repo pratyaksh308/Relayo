@@ -2,10 +2,15 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
+import path from "path";
+import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import roomRoutes from "./routes/room.routes.js";
 import messageRoutes from "./routes/message.routes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -27,6 +32,7 @@ app.use("/api/auth", authLimiter);
 // Core middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Routes
 app.get("/", (req, res) => {

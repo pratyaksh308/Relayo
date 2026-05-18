@@ -35,7 +35,38 @@ function MessageBubble({ message, isGrouped }) {
                     );
                 })()}
 
-                {message.attachment ? (
+                {message.messageType === 'file' ? (
+                    <div className="message-content-stack">
+                        {message.fileType?.startsWith('image/') ? (
+                            <div className="message-image-preview">
+                                <img 
+                                    src={message.fileUrl} 
+                                    alt={message.fileName} 
+                                    style={{ maxWidth: '100%', borderRadius: '8px', maxHeight: '300px', objectFit: 'contain', display: 'block' }} 
+                                />
+                            </div>
+                        ) : (
+                            <div className="message-attachment" style={{ padding: '10px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div className="attachment-icon">
+                                    <FileText size={20} />
+                                </div>
+                                <div className="attachment-info" style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <a href={message.fileUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', fontWeight: '500' }}>
+                                        {message.fileName}
+                                    </a>
+                                    <span className="attachment-size" style={{ fontSize: '11px', opacity: 0.7 }}>
+                                        {Math.round((message.fileSize || 0) / 1024)} KB
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                        {message.text && (
+                            <div className="message-bubble" style={{ marginTop: '4px' }}>
+                                {message.text}
+                            </div>
+                        )}
+                    </div>
+                ) : message.attachment ? (
                     <div className="message-content-stack">
                         <div className="message-bubble">
                             {message.text}
@@ -106,10 +137,13 @@ function formatDateSeparator(dateString) {
     }
 }
 
-export default function ChatArea({ conversation, onSendMessage, onTyping }) {
+export default function ChatArea({ conversation, onSendMessage, onTyping, onBackToList, onSendFileMessage }) {
     const [inputValue, setInputValue] = React.useState('');
     const [showScrollButton, setShowScrollButton] = React.useState(false);
     const [newMessageCount, setNewMessageCount] = React.useState(0);
+    const [isUploading, setIsUploading] = React.useState(false);
+
+    const fileInputRef = React.useRef(null);
 
     const messageListRef = React.useRef(null);
     const bottomRef = React.useRef(null);
@@ -209,6 +243,35 @@ export default function ChatArea({ conversation, onSendMessage, onTyping }) {
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleSend();
+        }
+    };
+
+    const handlePaperclipClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !conversation) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert("File size exceeds 5MB limit");
+            e.target.value = '';
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            if (onSendFileMessage) {
+                await onSendFileMessage(conversation.id, file);
+            }
+        } catch (error) {
+            alert("Failed to upload file. Check file type and size.");
+        } finally {
+            setIsUploading(false);
+            e.target.value = '';
         }
     };
 
@@ -319,17 +382,25 @@ export default function ChatArea({ conversation, onSendMessage, onTyping }) {
             )}
 
             <div className="chat-input-container">
+                <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    style={{ display: 'none' }} 
+                    onChange={handleFileChange}
+                    accept="image/jpeg,image/png,image/webp,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                />
                 <div className="chat-input-wrapper">
-                    <button className="icon-button input-action-btn">
+                    <button className="icon-button input-action-btn" onClick={handlePaperclipClick} disabled={isUploading}>
                         <Paperclip size={20} />
                     </button>
                     <input
                         type="text"
                         className="chat-input"
-                        placeholder={`Type a message to ${conversation.name}...`}
+                        placeholder={isUploading ? "Uploading file..." : `Type a message to ${conversation.name}...`}
                         value={inputValue}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
+                        disabled={isUploading}
                     />
                     <button className="icon-button input-action-btn">
                         <Smile size={20} />

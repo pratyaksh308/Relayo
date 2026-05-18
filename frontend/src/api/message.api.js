@@ -7,3 +7,11 @@ export const getMessagesByRoom = (roomId) => {
 export const sendMessage = (data) => {
   return api.post("/messages", data);
 };
+
+export const sendFileMessage = (data) => {
+  return api.post("/messages/file", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
