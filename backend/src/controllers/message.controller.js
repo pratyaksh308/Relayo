@@ -17,10 +17,9 @@ export const sendMessage = async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
-    if (!room.participants.includes(senderId)) {
-      return res.status(403).json({
-        message: "You are not a participant of this room"
-      });
+    const isParticipant = room.participants.some(p => p.toString() === String(senderId));
+    if (!isParticipant) {
+      return res.status(403).json({ message: "Access denied" });
     }
 
     let message = await Message.create({
@@ -59,7 +58,8 @@ export const getMessagesByRoom = async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
-    if (!room.participants.includes(userId)) {
+    const isParticipant = room.participants.some(p => p.toString() === String(userId));
+    if (!isParticipant) {
       return res.status(403).json({ message: "Access denied" });
     }
 
