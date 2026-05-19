@@ -26,6 +26,14 @@ export default function Sidebar({ conversations, selectedConversationId, onSelec
             text = "Attachment...";
         }
 
+        if (lastMessage.messageType === 'file' && (!text || text.trim() === "")) {
+            if (lastMessage.fileType && lastMessage.fileType.startsWith('image/')) {
+                text = "📷 Photo";
+            } else {
+                text = "📎 Attachment";
+            }
+        }
+
         const currentUserId = localStorage.getItem("userId");
         let prefix = "";
 
