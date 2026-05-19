@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getRooms } from "../api/room.api";
-import { getMessagesByRoom, sendMessage } from "../api/message.api";
+import { getMessagesByRoom, sendMessage, sendFileMessage } from "../api/message.api";
 import { io } from "socket.io-client";
 
 function generateAvatarStats(name) {
@@ -43,7 +43,7 @@ export default function useConversations() {
   // 1. Establish Socket Connection and Listen for Messages
   useEffect(() => {
     // Determine backend URL (fallback to localhost:5000 if env not set)
-    const backendUrl = "http://localhost:5000";
+    const backendUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
     socketRef.current = io(backendUrl);
 
     socketRef.current.on("newMessage", (msg) => {
@@ -63,6 +63,11 @@ export default function useConversations() {
             const newMsgFormatted = {
               id: msg._id,
               type: msgType,
+              messageType: msg.messageType || "text",
+              fileUrl: msg.fileUrl ? `${import.meta.env.VITE_SOCKET_URL || "http://localhost:5000"}${msg.fileUrl}` : null,
+              fileName: msg.fileName,
+              fileType: msg.fileType,
+              fileSize: msg.fileSize,
               sender: msg.sender?.name || msg.sender?.username || (msgType === "outgoing" ? "You" : "User"),
               time: new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
               createdAt: msg.createdAt,
@@ -253,6 +258,11 @@ export default function useConversations() {
         return {
           id: m._id,
           type: msgType,
+          messageType: m.messageType || "text",
+          fileUrl: m.fileUrl ? `${import.meta.env.VITE_SOCKET_URL || "http://localhost:5000"}${m.fileUrl}` : null,
+          fileName: m.fileName,
+          fileType: m.fileType,
+          fileSize: m.fileSize,
           sender: m.sender?.name || m.sender?.username || (msgType === "outgoing" ? "You" : "User"),
           time: new Date(m.createdAt).toLocaleTimeString([], {
             hour: "2-digit",
@@ -338,6 +348,49 @@ export default function useConversations() {
     }
   };
 
+  const handleSendFileMessage = async (conversationId, file) => {
+    try {
+      const formData = new FormData();
+      formData.append("roomId", conversationId);
+      formData.append("file", file);
+
+      const res = await sendFileMessage(formData);
+      
+      const newMsg = {
+        id: res.data.data._id,
+        type: "outgoing",
+        messageType: res.data.data.messageType || "file",
+        fileUrl: res.data.data.fileUrl ? `${import.meta.env.VITE_SOCKET_URL || "http://localhost:5000"}${res.data.data.fileUrl}` : null,
+        fileName: res.data.data.fileName,
+        fileType: res.data.data.fileType,
+        fileSize: res.data.data.fileSize,
+        sender: "You",
+        time: new Date(res.data.data.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        createdAt: res.data.data.createdAt,
+        avatar: "",
+        text: res.data.data.text
+      };
+
+      setConversations((prev) => {
+        if (!prev) return prev;
+        return prev.map((c) => {
+          if (String(c.id) === String(conversationId)) {
+            const exists = (c.messages || []).some(m => String(m.id) === String(newMsg.id));
+            if (exists) return c;
+            return { ...c, messages: [...(c.messages || []), newMsg] };
+          }
+          return c;
+        });
+      });
+    } catch (err) {
+      console.error("Send file failed", err);
+      throw err;
+    }
+  };
+
   const addConversation = useCallback((room) => {
     const formattedRoom = formatRoom(room);
     setConversations((prev) => {
@@ -358,6 +411,7 @@ export default function useConversations() {
     selectedConversation,
     selectedConversationId,
     handleSendMessage,
+    handleSendFileMessage,
     handleTyping,
     handleSelectConversation,
     addConversation

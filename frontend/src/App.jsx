@@ -6,6 +6,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
 function App() {
   return (
@@ -20,9 +21,21 @@ function App() {
       <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
       {/* App Pages */}
-      <Route path="/home" element={<HomePage />} />
-      <Route path="/chat" element={<ChatPage />} />
-      <Route path="/chat/:chatId" element={<ChatPage />} />
+      <Route path="/home" element={
+        <ProtectedRoute>
+          <HomePage />
+        </ProtectedRoute>
+      } />
+      <Route path="/chat" element={
+        <ProtectedRoute>
+          <ChatPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/chat/:chatId" element={
+        <ProtectedRoute>
+          <ChatPage />
+        </ProtectedRoute>
+      } />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" />} />

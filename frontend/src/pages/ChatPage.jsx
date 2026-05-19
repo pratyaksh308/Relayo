@@ -13,6 +13,7 @@ export default function ChatPage() {
         selectedConversation,
         selectedConversationId,
         handleSendMessage,
+        handleSendFileMessage,
         handleTyping,
         handleSelectConversation,
         addConversation
@@ -64,7 +65,9 @@ export default function ChatPage() {
                     <ChatArea
                         conversation={selectedConversation}
                         onSendMessage={handleSendMessage}
+                        onSendFileMessage={handleSendFileMessage}
                         onTyping={handleTyping}
+                        onBackToList={() => navigate('/chat')}
                     />
                     <RightPanel
                         conversation={selectedConversation}
